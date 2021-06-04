@@ -11,7 +11,10 @@ defmodule DeepThought.DeepL.Translator do
           message_text = escape_message_text(message)
           {:ok, translation} = DeepL.API.translate(message_text, language)
           translatedText = handle_usernames(translation)
-          :ok = say_in_thread(channel_id, translatedText, message, message_text)
+
+          :ok =
+            say_in_thread(channel_id, translatedText, message, message_text |> handle_usernames)
+
           params = create_translation_event_params(event_details, language)
 
           Slack.create_event(params)
@@ -91,10 +94,11 @@ defmodule DeepThought.DeepL.Translator do
     message_text
     |> escape_usernames()
     |> escape_emojis()
+    |> escape_links()
   end
 
   defp escape_usernames(text) do
-    Regex.replace(~r/<([!@]\S+)>/i, text, fn _, username ->
+    Regex.replace(~r/<([!@#]\S+)>/i, text, fn _, username ->
       "<username>&lt;" <> username <> "&gt;</username>"
     end)
   end
@@ -105,24 +109,38 @@ defmodule DeepThought.DeepL.Translator do
     end)
   end
 
+  defp escape_links(text) do
+    Regex.replace(~r/<(http\S+)>/i, text, fn _, link ->
+      "<link>" <> link <> "</link>"
+    end)
+  end
+
   defp unescape_message_text(message_text) do
     message_text
     |> unescape_usernames()
     |> unescape_emojis()
+    |> unescape_links()
   end
 
   defp unescape_usernames(text) do
-    Regex.replace(~r/<username>&lt;([!@]\S+)&gt;<\/username>/i, text, fn
+    Regex.replace(~r/<username>&lt;([!@#]\S+)&gt;<\/username>/i, text, fn
       _, "!" <> global ->
         "`!" <> global <> "`"
 
       _, "@" <> username ->
         "<@" <> username <> ">"
+
+      _, "#" <> channel_name ->
+        "<#" <> channel_name <> ">"
     end)
   end
 
   defp unescape_emojis(text) do
     Regex.replace(~r/<\/?emoji>/i, text, "")
+  end
+
+  defp unescape_links(text) do
+    Regex.replace(~r/<\/?link>/i, text, "")
   end
 
   defp create_translation_event_params(
