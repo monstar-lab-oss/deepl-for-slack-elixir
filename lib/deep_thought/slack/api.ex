@@ -23,13 +23,18 @@ defmodule DeepThought.Slack.API do
     end
   end
 
-  def chat_post_ephemeral(channel_id, user_id, text, thread_ts) do
-    case post("/chat.postEphemeral", %{
-           channel: channel_id,
-           user: user_id,
-           text: text,
-           thread_ts: thread_ts
-         }) do
+  def chat_post_ephemeral(channel_id, user_id, text, thread_ts \\ nil) do
+    params =
+      %{
+        channel: channel_id,
+        user: user_id,
+        text: text,
+        thread_ts: thread_ts
+      }
+      |> Enum.reject(fn {_k, v} -> v == nil end)
+      |> Enum.into(%{})
+
+    case post("/chat.postEphemeral", params) do
       {:ok, _response} -> :ok
       {:error, error} -> {:error, error}
     end

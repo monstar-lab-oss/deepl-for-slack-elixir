@@ -15,12 +15,12 @@ defmodule DeepThought.TranslatorSupervisor do
     )
   end
 
-  def simple_translate(channel_id, text, username) do
+  def simple_translate(channel_id, text, username, user_id) do
     Task.Supervisor.start_child(
       __MODULE__,
       DeepThought.DeepL.SimpleTranslator,
       :simple_translate,
-      [channel_id, text, username],
+      [channel_id, text, username, user_id],
       restart: :transient
     )
   end
