@@ -17,7 +17,11 @@ defmodule DeepThought.Application do
       DeepThoughtWeb.Endpoint,
       # Start a worker by calling: DeepThought.Worker.start_link(arg)
       # {DeepThought.Worker, arg}
-      {Task.Supervisor, name: DeepThought.TranslatorSupervisor}
+      {Task.Supervisor,
+       name: DeepThought.TranslatorSupervisor,
+       restart: :transient,
+       max_restarts: 3,
+       max_seconds: 15}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

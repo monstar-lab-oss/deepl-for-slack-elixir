@@ -4,15 +4,12 @@ defmodule DeepThought.TranslatorSupervisor do
       __MODULE__,
       DeepThought.DeepL.Translator,
       :translate,
-      [event_details, reaction, channel_id, message_ts],
-      restart: :transient
+      [event_details, reaction, channel_id, message_ts]
     )
   end
 
   def delete(payload) do
-    Task.Supervisor.start_child(__MODULE__, DeepThought.DeepL.Translator, :delete, [payload],
-      restart: :transient
-    )
+    Task.Supervisor.start_child(__MODULE__, DeepThought.DeepL.Translator, :delete, [payload])
   end
 
   def simple_translate(channel_id, text, username, user_id) do
@@ -20,8 +17,7 @@ defmodule DeepThought.TranslatorSupervisor do
       __MODULE__,
       DeepThought.DeepL.SimpleTranslator,
       :simple_translate,
-      [channel_id, text, username, user_id],
-      restart: :transient
+      [channel_id, text, username, user_id]
     )
   end
 end

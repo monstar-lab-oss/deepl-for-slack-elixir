@@ -63,8 +63,16 @@ defmodule DeepThought.DeepL.Translator do
   defp replace_all_user_ids({message_text, resolved, unresolved_user_ids}) do
     stream =
       Task.async_stream(unresolved_user_ids, fn user_id ->
-        {:ok, %{"real_name" => real_name}} = Slack.API.users_profile_get(user_id)
-        {user_id, real_name}
+        case Slack.API.users_profile_get(user_id) do
+          {:ok, %{"real_name" => real_name}} ->
+            {user_id, real_name}
+
+          {:ok, nil} ->
+            {user_id, ""}
+
+          {:error, _error} ->
+            {user_id, ""}
+        end
       end)
 
     usernames =
