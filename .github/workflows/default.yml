@@ -16,6 +16,7 @@ env:
 
 jobs:
   test:
+    name: Test
     runs-on: ubuntu-latest
 
     services:
@@ -28,16 +29,16 @@ jobs:
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
 
     steps:
-      - name: checkout
+      - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: set-up-elixir
+      - name: Set up Erlang/OTP and Elixir
         uses: erlef/setup-beam@v1
         with:
           otp-version: ${{ env.OTP_VERSION }}
           elixir-version: ${{ env.ELIXIR_VERSION }}
 
-      - name: deps-cache
+      - name: Restore dependencies cache
         uses: actions/cache@v2
         with:
           path: |
@@ -47,25 +48,25 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-${{ env.OTP_VERSION }}-${{ env.ELIXIR_VERSION }}-mix-
 
-      - name: deps
+      - name: Fetch dependencies
         run: mix deps.get
 
-      - name: format
+      - name: Check code formatting
         run: mix format --check-formatted
 
-      - name: compile
+      - name: Compile the code
         run: mix compile --warnings-as-errors
 
-      - name: test
+      - name: Run a test suite
         run: MIX_ENV=test mix test
 
-      - name: credo
+      - name: Run the Credo static code analysis tool
         run: mix credo --strict
 
-      - name: doctor
+      - name: Run Doctor
         run: mix doctor
 
-      - name: dialyzer-cache
+      - name: Restore PLTs cache
         uses: actions/cache@v2
         with:
           path: priv/plts
@@ -73,5 +74,5 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-${{ env.OTP_VERSION }}-${{ env.ELIXIR_VERSION }}-plts-
 
-      - name: dialyzer
+      - name: Run Dialyzer
         run: mix dialyzer
