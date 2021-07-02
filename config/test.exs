@@ -20,3 +20,9 @@ config :deep_thought, DeepThoughtWeb.Endpoint,
 
 # Print only warnings and errors during test
 config :logger, level: :warn
+
+config :deep_thought, :deepl, auth_key: "auth_key"
+
+config :deep_thought, :slack,
+  bot_token: "bot_token",
+  signing_secret: "signing_secret"

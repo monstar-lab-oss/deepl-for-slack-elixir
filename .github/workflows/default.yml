@@ -1,0 +1,78 @@
+name: default
+
+on: [push]
+
+env:
+  APPSIGNAL_OTP_APP: deep_thought
+  APPSIGNAL_APP_NAME: Deep Thought
+  APPSIGNAL_APP_ENV: ci
+  APPSIGNAL_PUSH_API_KEY: ${{ secrets.APPSIGNAL_PUSH_API_KEY }}
+  DEEPL_AUTH_KEY: auth_key
+  ELIXIR_VERSION: 1.12.1
+  MIX_ENV: dev
+  OTP_VERSION: 24.0.3
+  SLACK_BOT_TOKEN: bot_token
+  SLACK_SIGNING_SECRET: signing_secret
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+
+    services:
+      db:
+        image: postgres:latest
+        ports:
+          - 5432:5432
+        env:
+          POSTGRES_PASSWORD: postgres
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Erlang/OTP and Elixir
+        uses: erlef/setup-beam@v1
+        with:
+          otp-version: ${{ env.OTP_VERSION }}
+          elixir-version: ${{ env.ELIXIR_VERSION }}
+
+      - name: Restore dependencies cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            deps
+            _build
+          key: ${{ runner.os }}-${{ env.OTP_VERSION }}-${{ env.ELIXIR_VERSION }}-mix-${{ hashFiles('**/mix.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-${{ env.OTP_VERSION }}-${{ env.ELIXIR_VERSION }}-mix-
+
+      - name: Fetch dependencies
+        run: mix deps.get
+
+      - name: Check code formatting
+        run: mix format --check-formatted
+
+      - name: Compile the code
+        run: mix compile --warnings-as-errors
+
+      - name: Run a test suite
+        run: MIX_ENV=test mix test
+
+      - name: Run the Credo static code analysis tool
+        run: mix credo --strict
+
+      - name: Run Doctor
+        run: mix doctor
+
+      - name: Restore PLTs cache
+        uses: actions/cache@v2
+        with:
+          path: priv/plts
+          key: ${{ runner.os }}-${{ env.OTP_VERSION }}-${{ env.ELIXIR_VERSION }}-plts-${{ hashFiles('**/mix.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-${{ env.OTP_VERSION }}-${{ env.ELIXIR_VERSION }}-plts-
+
+      - name: Run Dialyzer
+        run: mix dialyzer

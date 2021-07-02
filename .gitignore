@@ -34,3 +34,6 @@ npm-debug.log
 /priv/static/
 
 /.env
+/.vscode
+/priv/plts/*.plt
+/priv/plts/*.plt.hash
