@@ -4,29 +4,36 @@ defmodule DeepThoughtWeb.PageLive do
   """
 
   use DeepThoughtWeb, :live_view
+  import Appsignal.Phoenix.LiveView, only: [instrument: 4]
 
   @impl true
   def mount(_params, _session, socket) do
-    {:ok, assign(socket, query: "", results: %{})}
+    instrument(__MODULE__, "mount", socket, fn ->
+      {:ok, assign(socket, query: "", results: %{})}
+    end)
   end
 
   @impl true
   def handle_event("suggest", %{"q" => query}, socket) do
-    {:noreply, assign(socket, results: search(query), query: query)}
+    instrument(__MODULE__, "suggest", socket, fn ->
+      {:noreply, assign(socket, results: search(query), query: query)}
+    end)
   end
 
   @impl true
   def handle_event("search", %{"q" => query}, socket) do
-    case search(query) do
-      %{^query => vsn} ->
-        {:noreply, redirect(socket, external: "https://hexdocs.pm/#{query}/#{vsn}")}
+    instrument(__MODULE__, "search", socket, fn ->
+      case search(query) do
+        %{^query => vsn} ->
+          {:noreply, redirect(socket, external: "https://hexdocs.pm/#{query}/#{vsn}")}
 
-      _ ->
-        {:noreply,
-         socket
-         |> put_flash(:error, "No dependencies found matching \"#{query}\"")
-         |> assign(results: %{}, query: query)}
-    end
+        _ ->
+          {:noreply,
+           socket
+           |> put_flash(:error, "No dependencies found matching \"#{query}\"")
+           |> assign(results: %{}, query: query)}
+      end
+    end)
   end
 
   defp search(query) do
