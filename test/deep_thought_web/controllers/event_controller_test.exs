@@ -17,7 +17,7 @@ defmodule DeepThoughtWeb.EventControllerTest do
   }
 
   test "responds to a url_verification payload", %{conn: conn} do
-    conn = post(conn, Routes.event_path(conn, :process), event: @url_verification)
+    conn = post(conn, Routes.event_path(conn, :process), @url_verification)
 
     assert %{"challenge" => @challenge} = json_response(conn, 200)
   end
