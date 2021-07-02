@@ -15,6 +15,7 @@ defmodule DeepThought.DataCase do
   """
 
   use ExUnit.CaseTemplate
+  alias Ecto.Adapters.SQL
 
   using do
     quote do
@@ -28,10 +29,10 @@ defmodule DeepThought.DataCase do
   end
 
   setup tags do
-    :ok = Ecto.Adapters.SQL.Sandbox.checkout(DeepThought.Repo)
+    :ok = SQL.Sandbox.checkout(DeepThought.Repo)
 
     unless tags[:async] do
-      Ecto.Adapters.SQL.Sandbox.mode(DeepThought.Repo, {:shared, self()})
+      SQL.Sandbox.mode(DeepThought.Repo, {:shared, self()})
     end
 
     :ok

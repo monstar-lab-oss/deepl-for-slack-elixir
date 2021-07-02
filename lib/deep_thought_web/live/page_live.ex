@@ -1,4 +1,8 @@
 defmodule DeepThoughtWeb.PageLive do
+  @moduledoc """
+  Currently unused landing page module.
+  """
+
   use DeepThoughtWeb, :live_view
 
   @impl true
