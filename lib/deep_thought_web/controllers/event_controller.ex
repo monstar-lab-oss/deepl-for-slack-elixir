@@ -14,4 +14,18 @@ defmodule DeepThoughtWeb.EventController do
   def process(conn, %{"type" => "url_verification", "challenge" => challenge}) do
     json(conn, %{challenge: challenge})
   end
+
+  def process(conn, %{
+        "event" => %{"type" => "reaction_added"} = _event,
+        "type" => "event_callback"
+      }) do
+    # DeepThought.TranslatorSupervisor.translate(event)
+    json(conn, %{})
+  end
+
+  def process(conn, _) do
+    conn
+    |> put_status(:bad_request)
+    |> json(%{})
+  end
 end
