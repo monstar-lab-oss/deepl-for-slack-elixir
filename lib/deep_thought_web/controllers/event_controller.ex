@@ -15,11 +15,8 @@ defmodule DeepThoughtWeb.EventController do
     json(conn, %{challenge: challenge})
   end
 
-  def process(conn, %{
-        "event" => %{"type" => "reaction_added"} = _event,
-        "type" => "event_callback"
-      }) do
-    # DeepThought.TranslatorSupervisor.translate(event)
+  def process(conn, %{"event" => %{"type" => type} = event, "type" => "event_callback"}) do
+    DeepThought.EventSupervisor.process(type, event)
     json(conn, %{})
   end
 
