@@ -17,7 +17,7 @@ defmodule DeepThought.Slack.Helper.MessageEscape do
   @spec escape_emoji(String.t()) :: String.t()
   defp escape_emoji(text),
     do:
-      Regex.replace(~r/(:\S+:)/ui, text, fn _, emoji ->
+      Regex.replace(~r/(:(?![\n])[()#$@\-\w]+:)/ui, text, fn _, emoji ->
         "<emoji>" <> emoji <> "</emoji>"
       end)
 end
