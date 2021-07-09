@@ -12,7 +12,11 @@ defmodule DeepThought.Slack.Helper.MessageEscape do
   def escape(text),
     do:
       text
+      |> remove_global_mentions
       |> escape_emoji
+
+  @spec remove_global_mentions(String.t()) :: String.t()
+  defp remove_global_mentions(text), do: Regex.replace(~r/<!(?:channel|here)> ?/ui, text, "")
 
   @spec escape_emoji(String.t()) :: String.t()
   defp escape_emoji(text),
