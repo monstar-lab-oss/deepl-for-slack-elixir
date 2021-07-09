@@ -4,6 +4,7 @@ defmodule DeepThought.Slack.Handler.ReactionAddedTest do
   """
 
   use DeepThought.DataCase
+  use DeepThought.MockCase
   alias DeepThought.Slack.Handler.ReactionAdded
 
   @event %{
@@ -20,11 +21,16 @@ defmodule DeepThought.Slack.Handler.ReactionAddedTest do
   }
 
   test "reaction_added/1 returns a translation based on event data" do
-    # TODO
+    assert {:ok, "Ahoj, světe!"} == ReactionAdded.reaction_added(@event)
   end
 
   test "reaction_added/1 ignores emoji reactions that are not flags" do
     event = Map.put(@event, "reaction", "rolling_on_the_floor_laughing")
-    assert nil == ReactionAdded.reaction_added(event)
+    assert {:error, :unknown_language} == ReactionAdded.reaction_added(event)
+  end
+
+  test "reaction_added/1 ignores emoji flags of unsupported languages" do
+    event = Map.put(@event, "reaction", "flag-sa")
+    assert {:error, :unknown_language} == ReactionAdded.reaction_added(event)
   end
 end
