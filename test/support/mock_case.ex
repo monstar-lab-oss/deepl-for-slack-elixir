@@ -26,8 +26,11 @@ defmodule DeepThought.MockCase do
 
   def setup_slack(method) do
     case method do
-      "/chat.postMessage" -> json(%{})
-      "/conversations.replies" -> json(%{"messages" => [%{"text" => "Hello, world!", "ts" => "1625806692.000500"}]})
+      "/chat.postMessage" ->
+        json(%{})
+
+      "/conversations.replies" ->
+        json(%{"messages" => [%{"text" => "Hello, world!", "ts" => "1625806692.000500"}]})
     end
   end
 end

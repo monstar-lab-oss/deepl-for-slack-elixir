@@ -20,10 +20,11 @@ defmodule DeepThought.Slack.Handler.ReactionAdded do
         "reaction" => reaction
       }) do
     with {:ok, %{deepl_code: language_code}} <- Language.new(reaction),
-         {:ok, [%{"text" => original} = message | _]} <- Slack.API.conversations_replies(channel_id, message_ts),
+         {:ok, [%{"text" => original} = message | _]} <-
+           Slack.API.conversations_replies(channel_id, message_ts),
          {_, translation} <- DeepL.API.translate(original, language_code),
          :ok <- say_in_thread(channel_id, translation, message) do
-          {:ok, translation}
+      {:ok, translation}
     else
       error -> error
     end

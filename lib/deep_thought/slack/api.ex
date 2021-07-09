@@ -25,7 +25,8 @@ defmodule DeepThought.Slack.API do
   Query Slack API to return a conversation history given a specified channel ID and timestamp, which are both obtained
   typically from an Events API event.
   """
-  @spec conversations_replies(String.t(), String.t(), boolean()) :: {:ok, [map()]} | {:error, non_neg_integer() | atom()}
+  @spec conversations_replies(String.t(), String.t(), boolean()) ::
+          {:ok, [map()]} | {:error, non_neg_integer() | atom()}
   def conversations_replies(channel_id, message_ts, inclusive \\ true) do
     case get("/conversations.replies",
            query: [channel: channel_id, ts: message_ts, inclusive: inclusive]

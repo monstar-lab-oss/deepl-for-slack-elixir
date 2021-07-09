@@ -27,9 +27,9 @@ defmodule DeepThoughtWeb.EventControllerTest do
       "reaction" => "flag-cz",
       "item_user" => "U9FE1J23V",
       "event_ts" => "1625226531.000200"
-      },
-      "type" => "event_callback"
-    }
+    },
+    "type" => "event_callback"
+  }
 
   test "responds to an url_verification payload with expected challenge", %{conn: conn} do
     conn = post(conn, Routes.event_path(conn, :process), @url_verification)
@@ -37,11 +37,11 @@ defmodule DeepThoughtWeb.EventControllerTest do
     assert %{"challenge" => @challenge} = json_response(conn, 200)
   end
 
-  #test "responds immediately to a reaction_added payload", %{conn: conn} do
+  # test "responds immediately to a reaction_added payload", %{conn: conn} do
   #  conn = post(conn, Routes.event_path(conn, :process), @reaction_added)
   #
   #  assert %{} = json_response(conn, 200)
-  #end
+  # end
 
   test "returns status code 400 on unsupported event type", %{conn: conn} do
     conn = post(conn, Routes.event_path(conn, :process), Map.delete(@reaction_added, "type"))
