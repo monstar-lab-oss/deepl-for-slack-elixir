@@ -6,6 +6,13 @@ defmodule DeepThought.Slack.Helper.MessageEscapeTest do
   use ExUnit.Case, async: true
   alias DeepThought.Slack.Helper.MessageEscape
 
+  test "escape/1 removes global mentions" do
+    original = "This<!channel>message <!here>is intentionally <!channel> annoying<!here>"
+    expected = "Thismessage is intentionally annoying"
+
+    assert expected == MessageEscape.escape(original)
+  end
+
   test "escape/1 wraps emoji in <emoji> tag" do
     original = """
     A simple message :email::thinking_face: with an emoji :rolling_on_the_floor_laughing: And some text at the end
