@@ -7,7 +7,10 @@ defmodule DeepThought.Slack.MessageEscapeTest do
   alias DeepThought.Slack.MessageEscape
 
   test "escape/1 removes global mentions" do
-    original = "This<!channel>message <!here>is intentionally <!channel> annoying<!here>"
+    original = """
+    This<!channel>message <!here>is <!everyone>intentionally <!channel> annoying<!here>\
+    """
+
     expected = "Thismessage is intentionally annoying"
 
     assert expected == MessageEscape.escape(original)
