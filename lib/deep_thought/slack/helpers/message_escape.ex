@@ -15,6 +15,7 @@ defmodule DeepThought.Slack.Helper.MessageEscape do
       |> remove_global_mentions
       |> escape_emojis
       |> escape_usernames
+      |> escape_channels
 
   @spec remove_global_mentions(String.t()) :: String.t()
   defp remove_global_mentions(text), do: Regex.replace(~r/<!(?:channel|here)> ?/ui, text, "")
@@ -31,5 +32,12 @@ defmodule DeepThought.Slack.Helper.MessageEscape do
     do:
       Regex.replace(~r/<(@\w+?)>/ui, text, fn _, username ->
         "<username>" <> username <> "</username>"
+      end)
+
+  @spec escape_channels(String.t()) :: String.t()
+  def escape_channels(text),
+    do:
+      Regex.replace(~r/<(#\w+)?(?:\|(\S+?))?>/ui, text, fn _, id, name ->
+        "<channel>" <> id <> "|" <> name <> "</channel>"
       end)
 end
