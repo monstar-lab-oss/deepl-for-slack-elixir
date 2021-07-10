@@ -38,7 +38,7 @@ defmodule DeepThought.Slack.MessageEscape do
   @spec escape_channels(String.t()) :: String.t()
   def escape_channels(text),
     do:
-      Regex.replace(~r/<(#C\w+)?(?:\|\S+?)?>/ui, text, fn _, channel_id ->
+      Regex.replace(~r/<(#C\w+)(?:\|\S+?)?>/ui, text, fn _, channel_id ->
         "<channel>" <> channel_id <> "</channel>"
       end)
 end
