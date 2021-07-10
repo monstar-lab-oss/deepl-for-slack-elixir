@@ -37,11 +37,7 @@ defmodule DeepThought.Slack.MessageEscape do
   @spec escape_channels(String.t()) :: String.t()
   def escape_channels(text),
     do:
-      Regex.replace(~r/<(#\w+)?(?:\|(\S+?))?>/ui, text, fn
-        _, id, name when name != "" ->
-          "<channel>" <> id <> "|" <> name <> "</channel>"
-
-        _, id, _name ->
-          "<channel>" <> id <> "</channel>"
+      Regex.replace(~r/<(#\w+)?(?:\|\S+?)?>/ui, text, fn _, channel_id ->
+        "<channel>" <> channel_id <> "</channel>"
       end)
 end
