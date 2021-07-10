@@ -15,11 +15,11 @@ defmodule DeepThought.Slack.Helper.MessageEscapeTest do
 
   test "escape/1 wraps emoji in <emoji> tag" do
     original = """
-    A simple message :email::thinking_face: with an emoji :rolling_on_the_floor_laughing: And some text at the end
+    A simple message :email::thinking_face: with an emoji :rolling_on_the_floor_laughing: And some text at the end\
     """
 
     expected = """
-    A simple message <emoji>:email:</emoji><emoji>:thinking_face:</emoji> with an emoji <emoji>:rolling_on_the_floor_laughing:</emoji> And some text at the end
+    A simple message <emoji>:email:</emoji><emoji>:thinking_face:</emoji> with an emoji <emoji>:rolling_on_the_floor_laughing:</emoji> And some text at the end\
     """
 
     assert expected == MessageEscape.escape(original)
@@ -44,5 +44,17 @@ defmodule DeepThought.Slack.Helper.MessageEscapeTest do
     Enum.each(messages, fn message ->
       assert message.expected == MessageEscape.escape(message.original)
     end)
+  end
+
+  test "escape/1 wraps usernames" do
+    original = """
+    This message <@U9FE1J23V> contains some <@U0233M3T96K> usernames <@U0171KB36DN><@U0233M3T96K>And ends with text\
+    """
+
+    expected = """
+    This message <username>@U9FE1J23V</username> contains some <username>@U0233M3T96K</username> usernames <username>@U0171KB36DN</username><username>@U0233M3T96K</username>And ends with text\
+    """
+
+    assert expected == MessageEscape.escape(original)
   end
 end
