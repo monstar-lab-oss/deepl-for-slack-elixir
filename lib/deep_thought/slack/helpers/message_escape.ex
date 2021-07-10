@@ -13,15 +13,23 @@ defmodule DeepThought.Slack.Helper.MessageEscape do
     do:
       text
       |> remove_global_mentions
-      |> escape_emoji
+      |> escape_emojis
+      |> escape_usernames
 
   @spec remove_global_mentions(String.t()) :: String.t()
   defp remove_global_mentions(text), do: Regex.replace(~r/<!(?:channel|here)> ?/ui, text, "")
 
-  @spec escape_emoji(String.t()) :: String.t()
-  defp escape_emoji(text),
+  @spec escape_emojis(String.t()) :: String.t()
+  defp escape_emojis(text),
     do:
       Regex.replace(~r/(:(?![\n])[()#$@\-\w]+:)/ui, text, fn _, emoji ->
         "<emoji>" <> emoji <> "</emoji>"
+      end)
+
+  @spec escape_usernames(String.t()) :: String.t()
+  def escape_usernames(text),
+    do:
+      Regex.replace(~r/<(@\w+?)>/ui, text, fn _, username ->
+        "<username>" <> username <> "</username>"
       end)
 end
