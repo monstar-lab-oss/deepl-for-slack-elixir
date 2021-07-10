@@ -1,10 +1,10 @@
-defmodule DeepThought.Slack.Helper.MessageEscapeTest do
+defmodule DeepThought.Slack.MessageEscapeTest do
   @moduledoc """
   Test suite to verify the functionality of message escaping prior to sending the text to the translation service.
   """
 
   use ExUnit.Case, async: true
-  alias DeepThought.Slack.Helper.MessageEscape
+  alias DeepThought.Slack.MessageEscape
 
   test "escape/1 removes global mentions" do
     original = "This<!channel>message <!here>is intentionally <!channel> annoying<!here>"

@@ -7,7 +7,8 @@ defmodule DeepThought.Slack.Handler.ReactionAdded do
 
   alias DeepThought.DeepL
   alias DeepThought.Slack
-  alias DeepThought.Slack.Language
+  alias DeepThought.Slack.API.Message
+  alias DeepThought.Slack.{Language, MessageEscape}
 
   @doc """
   Take event details, interpret the details, if the event points to a translation request, fetch the message details,
@@ -22,7 +23,8 @@ defmodule DeepThought.Slack.Handler.ReactionAdded do
     with {:ok, %{deepl_code: language_code}} <- Language.new(reaction),
          {:ok, [%{"text" => original} = message | _]} <-
            Slack.API.conversations_replies(channel_id, message_ts),
-         {_, translation} <- DeepL.API.translate(original, language_code),
+         escaped_original <- MessageEscape.escape(original),
+         {_, translation} <- DeepL.API.translate(escaped_original, language_code),
          :ok <- say_in_thread(channel_id, translation, message) do
       {:ok, translation}
     else
@@ -32,7 +34,9 @@ defmodule DeepThought.Slack.Handler.ReactionAdded do
 
   @spec say_in_thread(String.t(), String.t(), map()) :: :ok | {:error, atom()}
   defp say_in_thread(channel_id, translation, message) do
-    Slack.API.chat_post_message(channel_id, translation, thread_ts: extract_thread_ts(message))
+    Message.new(translation, channel_id)
+    |> Message.in_thread(extract_thread_ts(message))
+    |> Slack.API.chat_post_message()
   end
 
   @spec extract_thread_ts(map()) :: String.t()

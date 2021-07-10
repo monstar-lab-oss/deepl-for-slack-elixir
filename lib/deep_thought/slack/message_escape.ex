@@ -1,4 +1,4 @@
-defmodule DeepThought.Slack.Helper.MessageEscape do
+defmodule DeepThought.Slack.MessageEscape do
   @moduledoc """
   Helper module which takes a Slack message in the form of a string (as returned from the `conversations.replies` API
   method) and escapes its content in such a way that the likelihood of all important pieces of information to survive
@@ -37,7 +37,11 @@ defmodule DeepThought.Slack.Helper.MessageEscape do
   @spec escape_channels(String.t()) :: String.t()
   def escape_channels(text),
     do:
-      Regex.replace(~r/<(#\w+)?(?:\|(\S+?))?>/ui, text, fn _, id, name ->
-        "<channel>" <> id <> "|" <> name <> "</channel>"
+      Regex.replace(~r/<(#\w+)?(?:\|(\S+?))?>/ui, text, fn
+        _, id, name when name != "" ->
+          "<channel>" <> id <> "|" <> name <> "</channel>"
+
+        _, id, _name ->
+          "<channel>" <> id <> "</channel>"
       end)
 end

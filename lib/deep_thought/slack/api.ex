@@ -4,6 +4,7 @@ defmodule DeepThought.Slack.API do
   """
 
   use Tesla
+  alias DeepThought.Slack.API.Message
 
   plug Tesla.Middleware.BaseUrl, "https://slack.com/api"
   plug Tesla.Middleware.Headers, [{"Authorization", bearer_token()}]
@@ -13,9 +14,9 @@ defmodule DeepThought.Slack.API do
   @doc """
   Post a message in a Slack channel or, when supplied a valid `thread_ts`, in a discussion thread.
   """
-  @spec chat_post_message(String.t(), String.t(), list()) :: :ok | {:error, atom()}
-  def chat_post_message(channel_id, text, opts \\ []) do
-    case post("/chat.postMessage", Map.merge(%{channel: channel_id, text: text}, Map.new(opts))) do
+  @spec chat_post_message(Message.t()) :: :ok | {:error, atom()}
+  def chat_post_message(message) do
+    case post("/chat.postMessage", Message.unescape(message)) do
       {:ok, _response} -> :ok
       error -> error
     end

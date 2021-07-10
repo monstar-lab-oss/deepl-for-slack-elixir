@@ -4,9 +4,10 @@ defmodule DeepThought.Slack.APITest do
   """
 
   use DeepThought.MockCase, async: true
+  alias DeepThought.Slack.API.Message
 
   test "chat_post_message/3 can post a message" do
-    assert :ok == Slack.API.chat_post_message("channel_id", "text")
+    assert :ok == Slack.API.chat_post_message(Message.new("text", "channel_id"))
   end
 
   test "conversations_replies/3 can fetch message with its details" do
