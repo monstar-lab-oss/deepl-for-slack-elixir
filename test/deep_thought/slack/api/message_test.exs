@@ -17,4 +17,16 @@ defmodule DeepThought.Slack.API.MessageTest do
 
     assert %{text: ^expected} = Message.new(original, "") |> Message.unescape()
   end
+
+  test "unescape/1 unwraps channel names" do
+    original = """
+    Similarly, <channel>#C023P3L5WFN</channel> this message <channel>#C024C2HU4BZ</channel>references a bunch <channel>#C023P3L5WFN</channel><channel>#C024C2HU4BZ</channel>of channels\
+    """
+
+    expected = """
+    Similarly, <#C023P3L5WFN> this message <#C024C2HU4BZ>references a bunch <#C023P3L5WFN><#C024C2HU4BZ>of channels\
+    """
+
+    assert %{text: ^expected} = Message.new(original, "") |> Message.unescape()
+  end
 end
