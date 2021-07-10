@@ -57,4 +57,16 @@ defmodule DeepThought.Slack.Helper.MessageEscapeTest do
 
     assert expected == MessageEscape.escape(original)
   end
+
+  test "escape/1 wraps channel names" do
+    original = """
+    Similarly, <#C023P3L5WFN|deep-thought> this message <#C024C2HU4BZ|yakun>references a bunch <#C023P3L5WFN|deep-thought><#C024C2HU4BZ|yakun>of channels\
+    """
+
+    expected = """
+    Similarly, <channel>#C023P3L5WFN|deep-thought</channel> this message <channel>#C024C2HU4BZ|yakun</channel>references a bunch <channel>#C023P3L5WFN|deep-thought</channel><channel>#C024C2HU4BZ|yakun</channel>of channels\
+    """
+
+    assert expected == MessageEscape.escape(original)
+  end
 end
