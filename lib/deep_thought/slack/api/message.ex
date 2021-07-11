@@ -35,18 +35,29 @@ defmodule DeepThought.Slack.API.Message do
       message
       |> unescape_emojis
       |> unescape_channels
+      |> unescape_links
 
   @spec unescape_emojis(Message.t()) :: Message.t()
   defp unescape_emojis(%{text: text} = message),
     do: %Message{message | text: Regex.replace(~r/<\/?emoji>/ui, text, "")}
 
   @spec unescape_channels(Message.t()) :: Message.t()
-  def unescape_channels(%{text: text} = message),
+  defp unescape_channels(%{text: text} = message),
     do: %Message{
       message
       | text:
           Regex.replace(~r/<channel>(#C\w+)<\/channel>/ui, text, fn _, channel_id ->
             "<" <> channel_id <> ">"
+          end)
+    }
+
+  @spec unescape_links(Message.t()) :: Message.t()
+  defp unescape_links(%{text: text} = message),
+    do: %Message{
+      message
+      | text:
+          Regex.replace(~r/<link>(.+?)<\/link>/ui, text, fn _, link ->
+            "<" <> link <> ">"
           end)
     }
 end
