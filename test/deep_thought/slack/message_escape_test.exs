@@ -75,11 +75,11 @@ defmodule DeepThought.Slack.MessageEscapeTest do
 
   test "escape/1 wraps links" do
     original = """
-    This <https://www.milanvit.net> message contains <https://www.milanvit.net|Czech/in/Japan> links. To e-mail <mailto:milanvit@milanvit.net> as well? <mailto:milanvit@milanvit.net|You bet.>
+    This <https://www.milanvit.net> message contains <https://www.milanvit.net|Czech/in/Japan> links. To e-mail <mailto:milanvit@milanvit.net> as well? <mailto:milanvit@milanvit.net|You bet.>\
     """
 
     expected = """
-    This <link>https://www.milanvit.net</link> message contains <link>https://www.milanvit.net|Czech/in/Japan</link> links. To e-mail <link>mailto:milanvit@milanvit.net</link> as well? <link>mailto:milanvit@milanvit.net|You bet.</link>
+    This <link>https://www.milanvit.net</link> message contains <link>https://www.milanvit.net|Czech/in/Japan</link> links. To e-mail <link>mailto:milanvit@milanvit.net</link> as well? <link>mailto:milanvit@milanvit.net|You bet.</link>\
     """
 
     assert expected == MessageEscape.escape(original)

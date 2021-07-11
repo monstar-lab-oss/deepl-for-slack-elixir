@@ -50,8 +50,8 @@ defmodule DeepThought.Slack.MessageEscape do
       Regex.replace(
         ~r/<((?:mailto:\S+?@\S+?(?:\|.+?)?)|(?:https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})(?:\|.+?)?)>/ui,
         text,
-        fn _, url ->
-          "<link>" <> url <> "</link>"
+        fn _, link ->
+          "<link>" <> link <> "</link>"
         end
       )
 end

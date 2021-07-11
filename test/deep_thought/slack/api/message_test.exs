@@ -29,4 +29,16 @@ defmodule DeepThought.Slack.API.MessageTest do
 
     assert %{text: ^expected} = Message.new(original, "") |> Message.unescape()
   end
+
+  test "unescape/1 unwraps links" do
+    original = """
+    This <link>https://www.milanvit.net</link> message contains <link>https://www.milanvit.net|Czech/in/Japan</link> links. To e-mail <link>mailto:milanvit@milanvit.net</link> as well? <link>mailto:milanvit@milanvit.net|You bet.</link>\
+    """
+
+    expected = """
+    This <https://www.milanvit.net> message contains <https://www.milanvit.net|Czech/in/Japan> links. To e-mail <mailto:milanvit@milanvit.net> as well? <mailto:milanvit@milanvit.net|You bet.>\
+    """
+
+    assert %{text: ^expected} = Message.new(original, "") |> Message.unescape()
+  end
 end
