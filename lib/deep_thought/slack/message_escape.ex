@@ -16,10 +16,11 @@ defmodule DeepThought.Slack.MessageEscape do
       |> escape_emojis
       |> escape_usernames
       |> escape_channels
+      |> escape_links
 
   @spec remove_global_mentions(String.t()) :: String.t()
   defp remove_global_mentions(text),
-    do: Regex.replace(~r/<!(?:channel|here|everyone)(?:\|\S+?)?> ?/ui, text, "")
+    do: Regex.replace(~r/<!(?:channel|here|everyone)(?:\|.+?)?> ?/ui, text, "")
 
   @spec escape_emojis(String.t()) :: String.t()
   defp escape_emojis(text),
@@ -29,16 +30,28 @@ defmodule DeepThought.Slack.MessageEscape do
       end)
 
   @spec escape_usernames(String.t()) :: String.t()
-  def escape_usernames(text),
+  defp escape_usernames(text),
     do:
-      Regex.replace(~r/<(@[UW]\w+?)(?:\|\S+?)?>/ui, text, fn _, username ->
+      Regex.replace(~r/<(@[UW]\w+?)(?:\|.+?)?>/ui, text, fn _, username ->
         "<username>" <> username <> "</username>"
       end)
 
   @spec escape_channels(String.t()) :: String.t()
-  def escape_channels(text),
+  defp escape_channels(text),
     do:
-      Regex.replace(~r/<(#C\w+)(?:\|\S+?)?>/ui, text, fn _, channel_id ->
+      Regex.replace(~r/<(#C\w+)(?:\|.+?)?>/ui, text, fn _, channel_id ->
         "<channel>" <> channel_id <> "</channel>"
       end)
+
+  @spec escape_links(String.t()) :: String.t()
+  def escape_links(text),
+    # credo:disable-for-lines:3
+    do:
+      Regex.replace(
+        ~r/<((?:mailto:\S+?@\S+?(?:\|.+?)?)|(?:https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})(?:\|.+?)?)>/ui,
+        text,
+        fn _, url ->
+          "<link>" <> url <> "</link>"
+        end
+      )
 end
