@@ -3,7 +3,8 @@ defmodule DeepThought.Slack.API.Message do
   Struct used to represent a message to be sent through Slack API.
   """
 
-  alias DeepThought.Slack.API
+  alias DeepThought.Slack
+  alias DeepThought.Slack.{API, User}
   alias DeepThought.Slack.API.Message
 
   @derive {Jason.Encoder, only: [:channel, :text, :thread_ts]}
@@ -90,25 +91,27 @@ defmodule DeepThought.Slack.API.Message do
   end
 
   @spec fetch_remaining_usernames(Message.t()) :: Message.t()
-  defp fetch_remaining_usernames(%{usernames: usernames} = message) do
-    usernames =
-      usernames
-      |> Enum.filter(fn {_user_id, username} -> username == nil end)
-      |> Task.async_stream(fn {user_id, _username} ->
-        case API.users_profile_get(user_id) do
-          {:ok, %{"real_name" => real_name}} -> {user_id, real_name}
-          {:ok, %{"display_name" => display_name}} -> {user_id, display_name}
-          _ -> {user_id, "unknown user"}
-        end
-      end)
-      |> Enum.reduce(%{}, fn {:ok, {user_id, username}}, acc ->
-        Map.put(acc, user_id, username)
-      end)
-
-    # TODO: store in database
-
-    %Message{message | usernames: usernames}
-  end
+  defp fetch_remaining_usernames(%{usernames: usernames} = message),
+    do: %Message{
+      message
+      | usernames:
+          usernames
+          |> Enum.filter(fn {_user_id, username} -> username == nil end)
+          |> Task.async_stream(
+            fn {user_id, _username} ->
+              {:ok, profile} = API.users_profile_get(user_id)
+              {user_id, profile}
+            end,
+            max_concurrency: 5
+          )
+          |> Enum.reduce([], fn {:ok, {user_id, profile}}, acc ->
+            [Map.put(profile, "user_id", user_id) | acc]
+          end)
+          |> Slack.update_users!()
+          |> Enum.reduce(%{}, fn user, acc ->
+            Map.put(acc, user.user_id, User.display_name(user))
+          end)
+    }
 
   @spec replace_usernames(Message.t()) :: Message.t()
   defp replace_usernames(%{text: text, usernames: usernames} = message),
