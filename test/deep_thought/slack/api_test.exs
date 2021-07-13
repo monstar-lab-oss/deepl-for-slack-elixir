@@ -14,4 +14,8 @@ defmodule DeepThought.Slack.APITest do
     assert {:ok, [%{"text" => "Hello, world!"} | _rest]} =
              Slack.API.conversations_replies("channel_id", "ts")
   end
+
+  test "users_profile_get/1 can fetch a user profile" do
+    assert {:ok, %{"real_name" => "Milan Vít"}} = Slack.API.users_profile_get("U9FE1J23V")
+  end
 end
