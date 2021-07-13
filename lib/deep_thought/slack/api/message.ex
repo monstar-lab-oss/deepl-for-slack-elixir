@@ -9,9 +9,10 @@ defmodule DeepThought.Slack.API.Message do
   @type t :: %__MODULE__{
           channel: String.t(),
           text: String.t(),
-          thread_ts: String.t() | nil
+          thread_ts: String.t() | nil,
+          user_ids: map()
         }
-  defstruct channel: nil, text: nil, thread_ts: nil
+  defstruct channel: nil, text: nil, thread_ts: nil, user_ids: %{}
 
   @doc """
   Create a message struct, initializing the required fields.
@@ -36,6 +37,7 @@ defmodule DeepThought.Slack.API.Message do
       |> unescape_emojis
       |> unescape_channels
       |> unescape_links
+      |> unescape_usernames
 
   @spec unescape_emojis(Message.t()) :: Message.t()
   defp unescape_emojis(%{text: text} = message),
@@ -59,5 +61,21 @@ defmodule DeepThought.Slack.API.Message do
           Regex.replace(~r/<link>(.+?)<\/link>/ui, text, fn _, link ->
             "<" <> link <> ">"
           end)
+    }
+
+  @spec unescape_usernames(Message.t()) :: Message.t()
+  def unescape_usernames(message),
+    do:
+      message
+      |> collect_user_ids
+
+  @spec collect_user_ids(Message.t()) :: Message.t()
+  defp collect_user_ids(%{text: text} = message),
+    do: %Message{
+      message
+      | user_ids:
+          Regex.scan(~r/<username>(@[UW]\w+?)<\/username>/ui, text, capture: :all_but_first)
+          |> List.flatten()
+          |> Enum.into(%{}, fn user_id -> {user_id, nil} end)
     }
 end

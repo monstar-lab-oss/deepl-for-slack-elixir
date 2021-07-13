@@ -20,7 +20,7 @@ defmodule DeepThought.Slack.API.MessageTest do
 
   test "unescape/1 unwraps usernames" do
     original = """
-    This message <@U9FE1J23V> contains some <@U0233M3T96K> usernames <@U0171KB36DN><@U0233M3T96K>And ends with text\
+    This message <username>@U9FE1J23V</username> contains some <username>@U0233M3T96K</username> usernames <username>@U0171KB36DN</username><username>@U0233M3T96K</username>And ends with text\
     """
 
     expected = """
