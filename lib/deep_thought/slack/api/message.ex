@@ -3,6 +3,7 @@ defmodule DeepThought.Slack.API.Message do
   Struct used to represent a message to be sent through Slack API.
   """
 
+  alias DeepThought.Slack.API
   alias DeepThought.Slack.API.Message
 
   @derive {Jason.Encoder, only: [:channel, :text, :thread_ts]}
@@ -10,9 +11,9 @@ defmodule DeepThought.Slack.API.Message do
           channel: String.t(),
           text: String.t(),
           thread_ts: String.t() | nil,
-          user_ids: map()
+          usernames: map()
         }
-  defstruct channel: nil, text: nil, thread_ts: nil, user_ids: %{}
+  defstruct channel: nil, text: nil, thread_ts: nil, usernames: %{}
 
   @doc """
   Create a message struct, initializing the required fields.
@@ -68,14 +69,43 @@ defmodule DeepThought.Slack.API.Message do
     do:
       message
       |> collect_user_ids
+      |> fetch_cached_usernames
+      |> fetch_remaining_usernames
 
   @spec collect_user_ids(Message.t()) :: Message.t()
   defp collect_user_ids(%{text: text} = message),
     do: %Message{
       message
-      | user_ids:
-          Regex.scan(~r/<username>(@[UW]\w+?)<\/username>/ui, text, capture: :all_but_first)
+      | usernames:
+          Regex.scan(~r/<username>@([UW]\w+?)<\/username>/ui, text, capture: :all_but_first)
           |> List.flatten()
           |> Enum.into(%{}, fn user_id -> {user_id, nil} end)
     }
+
+  @spec fetch_cached_usernames(Message.t()) :: Message.t()
+  defp fetch_cached_usernames(message) do
+    # TODO: fetch from database
+    message
+  end
+
+  @spec fetch_remaining_usernames(Message.t()) :: Message.t()
+  defp fetch_remaining_usernames(%{usernames: usernames} = message) do
+    usernames =
+      usernames
+      |> Enum.filter(fn {_user_id, username} -> username == nil end)
+      |> Task.async_stream(fn {user_id, _username} ->
+        case API.users_profile_get(user_id) do
+          {:ok, %{"real_name" => real_name}} -> {user_id, real_name}
+          {:ok, %{"display_name" => display_name}} -> {user_id, display_name}
+          _ -> {user_id, ""}
+        end
+      end)
+      |> Enum.reduce(%{}, fn {:ok, {user_id, username}}, acc ->
+        Map.put(acc, user_id, username)
+      end)
+
+    # TODO: store in database
+
+    %Message{message | usernames: usernames}
+  end
 end
