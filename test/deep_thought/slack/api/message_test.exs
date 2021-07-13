@@ -18,6 +18,18 @@ defmodule DeepThought.Slack.API.MessageTest do
     assert %{text: ^expected} = Message.new(original, "") |> Message.unescape()
   end
 
+  test "unescape/1 unwraps usernames" do
+    original = """
+    This message <@U9FE1J23V> contains some <@U0233M3T96K> usernames <@U0171KB36DN><@U0233M3T96K>And ends with text\
+    """
+
+    expected = """
+    This message _Milan Vít_ contains some _Deep Thought_ usernames _dokku_ _Deep Thought_ And ends with text\
+    """
+
+    assert %{text: ^expected} = Message.new(original, "") |> Message.unescape()
+  end
+
   test "unescape/1 unwraps channel names" do
     original = """
     Similarly, <channel>#C023P3L5WFN</channel> this message <channel>#C024C2HU4BZ</channel>references a bunch <channel>#C023P3L5WFN</channel><channel>#C024C2HU4BZ</channel>of channels\

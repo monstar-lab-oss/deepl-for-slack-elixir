@@ -43,6 +43,23 @@ defmodule DeepThought.Slack.API do
     end
   end
 
+  @doc """
+  Query Slack API to return user profile for a given user ID.
+  """
+  @spec users_profile_get(String.t()) :: {:ok, map()} | {:error, non_neg_integer() | atom()}
+  def users_profile_get(user_id) do
+    case get("/users.profile.get", query: [user: user_id]) do
+      {:ok, response} ->
+        case response.status() do
+          200 -> {:ok, response.body()["profile"]}
+          code -> {:error, code}
+        end
+
+      error ->
+        error
+    end
+  end
+
   @spec bearer_token() :: String.t()
   defp bearer_token, do: "Bearer " <> Application.get_env(:deep_thought, :slack)[:bot_token]
 end

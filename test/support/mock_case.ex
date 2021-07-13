@@ -16,7 +16,7 @@ defmodule DeepThought.MockCase do
   setup do
     Tesla.Mock.mock(fn
       %{url: "https://api.deepl.com/" <> _rest} -> setup_deepl()
-      %{url: "https://slack.com/api" <> method} -> setup_slack(method)
+      %{url: "https://slack.com/api" <> method} = env -> setup_slack(env, method)
     end)
 
     :ok
@@ -24,13 +24,23 @@ defmodule DeepThought.MockCase do
 
   def setup_deepl, do: json(%{"translations" => [%{"text" => "Ahoj, světe!"}]})
 
-  def setup_slack(method) do
+  def setup_slack(env, method) do
     case method do
       "/chat.postMessage" ->
         json(%{})
 
       "/conversations.replies" ->
         json(%{"messages" => [%{"text" => "Hello, world!", "ts" => "1625806692.000500"}]})
+
+      "/users.profile.get" ->
+        real_name =
+          case env.query[:user] do
+            "U9FE1J23V" -> "Milan Vít"
+            "U0233M3T96K" -> "Deep Thought"
+            "U0171KB36DN" -> "dokku"
+          end
+
+        json(%{"profile" => %{"real_name" => real_name}})
     end
   end
 end
