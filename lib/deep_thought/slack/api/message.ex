@@ -71,6 +71,7 @@ defmodule DeepThought.Slack.API.Message do
       |> collect_user_ids
       |> fetch_cached_usernames
       |> fetch_remaining_usernames
+      |> replace_usernames
 
   @spec collect_user_ids(Message.t()) :: Message.t()
   defp collect_user_ids(%{text: text} = message),
@@ -97,7 +98,7 @@ defmodule DeepThought.Slack.API.Message do
         case API.users_profile_get(user_id) do
           {:ok, %{"real_name" => real_name}} -> {user_id, real_name}
           {:ok, %{"display_name" => display_name}} -> {user_id, display_name}
-          _ -> {user_id, ""}
+          _ -> {user_id, "unknown user"}
         end
       end)
       |> Enum.reduce(%{}, fn {:ok, {user_id, username}}, acc ->
@@ -108,4 +109,15 @@ defmodule DeepThought.Slack.API.Message do
 
     %Message{message | usernames: usernames}
   end
+
+  @spec replace_usernames(Message.t()) :: Message.t()
+  defp replace_usernames(%{text: text, usernames: usernames} = message),
+    do: %Message{
+      message
+      | text:
+          Regex.replace(~r/<username>@([UW]\w+?)<\/username>(?=(.?))/ui, text, fn
+            _, user_id, next_char when next_char in ["", " "] -> "_" <> usernames[user_id] <> "_"
+            _, user_id, _next_char -> "_" <> usernames[user_id] <> "_ "
+          end)
+    }
 end
