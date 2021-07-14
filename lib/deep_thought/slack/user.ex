@@ -6,6 +6,7 @@ defmodule DeepThought.Slack.User do
   use Ecto.Schema
   alias DeepThought.Slack.User
   import Ecto.Changeset
+  import Ecto.Query
 
   @type t :: %__MODULE__{
           __meta__: Ecto.Schema.Metadata.t(),
@@ -38,9 +39,15 @@ defmodule DeepThought.Slack.User do
   Given a Slack user, return a user-friendly username of that user. Prefers real name over display name.
   """
   @spec display_name(User.t()) :: String.t()
-  def display_name(%{real_name: real_name}), do: real_name
-  def display_name(%{display_name: display_name}), do: display_name
+  def display_name(%{real_name: real_name}) when real_name != nil, do: real_name
+  def display_name(%{display_name: display_name}) when display_name != nil, do: display_name
   def display_name(_), do: "unknown user"
+
+  @doc """
+  Given a list of Slack user IDs, find all matching cached users and return their profile information.
+  """
+  @spec find_by_user_ids([String.t()]) :: Ecto.Query.t()
+  def find_by_user_ids(user_ids), do: from(u in User, where: u.user_id in ^user_ids, select: u)
 
   @doc """
   Changeset for upserting users based on data obtained from Slack API.

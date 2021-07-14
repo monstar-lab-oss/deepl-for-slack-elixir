@@ -9,6 +9,15 @@ defmodule DeepThought.Slack do
   alias DeepThought.Slack.User
 
   @doc """
+  Find users by user_ids.
+  """
+  @spec find_users_by_user_ids([String.t()]) :: [User.t()]
+  def find_users_by_user_ids(user_ids) do
+    User.find_by_user_ids(user_ids)
+    |> Repo.all()
+  end
+
+  @doc """
   Inserts or updates user information in database.
   """
   @spec update_users!([map()]) :: [User.t()]
@@ -24,7 +33,7 @@ defmodule DeepThought.Slack do
         )
         | acc
       ]
-      |> Enum.reverse()
     end)
+    |> Enum.reverse()
   end
 end

@@ -36,6 +36,7 @@ defmodule DeepThought.Slack.Handler.ReactionAdded do
   defp say_in_thread(channel_id, translation, message) do
     Message.new(translation, channel_id)
     |> Message.in_thread(extract_thread_ts(message))
+    |> Message.unescape()
     |> Slack.API.chat_post_message()
   end
 

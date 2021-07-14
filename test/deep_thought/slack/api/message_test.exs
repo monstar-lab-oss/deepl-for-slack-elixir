@@ -3,8 +3,19 @@ defmodule DeepThought.Slack.API.MessageTest do
   Test suite to verify the Message module, especially its unescaping logic.
   """
 
-  use ExUnit.Case, async: true
+  use DeepThought.DataCase
+  alias DeepThought.Slack
   alias DeepThought.Slack.API.Message
+
+  setup do
+    Slack.update_users!([
+      %{"user_id" => "U9FE1J23V", "real_name" => "Milan Vít"},
+      %{"user_id" => "U0233M3T96K", "real_name" => "Deep Thought"},
+      %{"user_id" => "U0171KB36DN", "display_name" => "dokku"}
+    ])
+
+    :ok
+  end
 
   test "unescape/1 unwraps emoji" do
     original = """

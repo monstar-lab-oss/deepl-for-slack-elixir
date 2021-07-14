@@ -85,10 +85,17 @@ defmodule DeepThought.Slack.API.Message do
     }
 
   @spec fetch_cached_usernames(Message.t()) :: Message.t()
-  defp fetch_cached_usernames(message) do
-    # TODO: fetch from database
-    message
-  end
+  defp fetch_cached_usernames(%{usernames: usernames} = message),
+    do: %Message{
+      message
+      | usernames:
+          Map.keys(usernames)
+          |> Slack.find_users_by_user_ids()
+          |> Enum.reduce(%{}, fn user, acc ->
+            Map.put(acc, user.user_id, User.display_name(user))
+          end)
+          |> Map.merge(usernames, fn _k, cached, _unresolved -> cached end)
+    }
 
   @spec fetch_remaining_usernames(Message.t()) :: Message.t()
   defp fetch_remaining_usernames(%{usernames: usernames} = message),
@@ -111,6 +118,7 @@ defmodule DeepThought.Slack.API.Message do
           |> Enum.reduce(%{}, fn user, acc ->
             Map.put(acc, user.user_id, User.display_name(user))
           end)
+          |> Map.merge(usernames)
     }
 
   @spec replace_usernames(Message.t()) :: Message.t()

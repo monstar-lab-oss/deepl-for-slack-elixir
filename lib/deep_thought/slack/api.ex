@@ -16,7 +16,7 @@ defmodule DeepThought.Slack.API do
   """
   @spec chat_post_message(Message.t()) :: :ok | {:error, atom()}
   def chat_post_message(message) do
-    case post("/chat.postMessage", Message.unescape(message)) do
+    case post("/chat.postMessage", message) do
       {:ok, _response} -> :ok
       error -> error
     end
