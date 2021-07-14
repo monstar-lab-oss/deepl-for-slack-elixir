@@ -17,6 +17,7 @@ defmodule DeepThought.Slack.MessageEscape do
       |> escape_usernames
       |> escape_channels
       |> escape_links
+      |> escape_code
 
   @spec remove_global_mentions(String.t()) :: String.t()
   defp remove_global_mentions(text),
@@ -44,7 +45,7 @@ defmodule DeepThought.Slack.MessageEscape do
       end)
 
   @spec escape_links(String.t()) :: String.t()
-  def escape_links(text),
+  defp escape_links(text),
     # credo:disable-for-lines:3
     do:
       Regex.replace(
@@ -54,4 +55,25 @@ defmodule DeepThought.Slack.MessageEscape do
           "<link>" <> link <> "</link>"
         end
       )
+
+  @spec escape_code(String.t()) :: String.t()
+  defp escape_code(text),
+    do:
+      text
+      |> escape_codeblocks()
+      |> escape_inline_code()
+
+  @spec escape_codeblocks(String.t()) :: String.t()
+  defp escape_codeblocks(text),
+    do:
+      Regex.replace(~r/(^```.+?```$)/mui, text, fn _, code ->
+        "<code>" <> code <> "</code>"
+      end)
+
+  @spec escape_inline_code(String.t()) :: String.t()
+  defp escape_inline_code(text),
+    do:
+      Regex.replace(~r/(?<![`>])(`.+?`)(?![`<])/ui, text, fn _, code ->
+        "<code>" <> code <> "</code>"
+      end)
 end
