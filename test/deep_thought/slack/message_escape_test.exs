@@ -84,4 +84,34 @@ defmodule DeepThought.Slack.MessageEscapeTest do
 
     assert expected == MessageEscape.escape(original)
   end
+
+  test "escape/1 wraps codeblocks" do
+    original = """
+    This message contains a codeblock:
+    ```awesome |&gt; elixir |&gt; code```
+    This is also a valid codeblock:
+    ```say |> no |> to |> go ```\
+    """
+
+    expected = """
+    This message contains a codeblock:
+    <code>```awesome |&gt; elixir |&gt; code```</code>
+    This is also a valid codeblock:
+    <code>```say |> no |> to |> go ```</code>\
+    """
+
+    assert expected == MessageEscape.escape(original)
+  end
+
+  test "escape/1 wraps inline code" do
+    original = """
+    This message `contains` in-line `code`, in quite `a bit` of various `forms`,`this one is fine`,`and so is this one`, but what about if we `make things` really difficult`?\
+    """
+
+    expected = """
+    This message <code>`contains`</code> in-line <code>`code`</code>, in quite <code>`a bit`</code> of various <code>`forms`</code>,<code>`this one is fine`</code>,<code>`and so is this one`</code>, but what about if we <code>`make things`</code> really difficult`?\
+    """
+
+    assert expected == MessageEscape.escape(original)
+  end
 end
