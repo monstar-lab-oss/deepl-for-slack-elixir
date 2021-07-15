@@ -20,11 +20,29 @@ defmodule DeepThought.SlackTest do
       user_id: "U987654"
     }
 
-    test "find_uesrs_by_user_ids/1 finds user accounts" do
+    test "find_users_by_user_ids/1 finds user accounts" do
       assert [%User{}, %User{}] = Slack.update_users!([@user1, @user2])
       assert [user1, user2] = Slack.find_users_by_user_ids(~w[U123456 U987654])
       assert user1.user_id == "U123456"
       assert user2.user_id == "U987654"
+    end
+
+    test "find_users_by_user_ids/1 doesn’t return stale data" do
+      today = NaiveDateTime.utc_now() |> NaiveDateTime.truncate(:second)
+      yesterday = today |> NaiveDateTime.add(-24 * 60 * 60)
+
+      DeepThought.Repo.transaction(fn ->
+        DeepThought.Repo.insert_all(Slack.User, [
+          Map.merge(@user1, %{inserted_at: yesterday, updated_at: yesterday}),
+          Map.merge(@user2, %{inserted_at: today, updated_at: today})
+        ])
+
+        assert [user] = result = Slack.find_users_by_user_ids(~w[U123456 U987654])
+        assert user.user_id == "U987654"
+        assert Enum.count(result) == 1
+
+        Repo.rollback(:cleanup)
+      end)
     end
 
     test "update_users/1 with valid data creates/updates users" do
