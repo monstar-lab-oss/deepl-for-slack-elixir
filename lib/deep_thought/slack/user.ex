@@ -47,7 +47,9 @@ defmodule DeepThought.Slack.User do
   Given a list of Slack user IDs, find all matching cached users and return their profile information.
   """
   @spec find_by_user_ids([String.t()]) :: Ecto.Query.t()
-  def find_by_user_ids(user_ids), do: from(u in User, where: u.user_id in ^user_ids, select: u)
+  def find_by_user_ids(user_ids),
+    do:
+      from(u in User, where: u.user_id in ^user_ids and u.updated_at >= ^half_day_ago(), select: u)
 
   @doc """
   Changeset for upserting users based on data obtained from Slack API.
@@ -68,4 +70,7 @@ defmodule DeepThought.Slack.User do
     |> validate_required([:user_id])
     |> unique_constraint([:user_id])
   end
+
+  @spec half_day_ago() :: NaiveDateTime.t()
+  defp half_day_ago, do: NaiveDateTime.utc_now() |> NaiveDateTime.add(-12 * 60 * 60)
 end

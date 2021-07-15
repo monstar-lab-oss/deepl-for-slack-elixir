@@ -81,17 +81,8 @@ defmodule DeepThought.Slack.API.Message do
       message
       | text:
           Regex.replace(~r/(?<=(\s))?<d>(.+?)<\/d>(?=([\s,$]?))/mui, text, fn
-            _, prev_char, code, next_char when prev_char == "" and next_char == "" ->
-              " " <> code <> " "
-
-            _, prev_char, code, _next_char when prev_char == "" ->
-              " " <> code
-
-            _, _prev_char, code, next_char when next_char == "" ->
-              code <> " "
-
-            _, _prev_char, code, _next_char ->
-              code
+            _, prev_char, code, next_char ->
+              surround(code, prev_char, next_char)
           end)
     }
 
@@ -112,9 +103,7 @@ defmodule DeepThought.Slack.API.Message do
       | usernames:
           Map.keys(usernames)
           |> Slack.find_users_by_user_ids()
-          |> Enum.reduce(%{}, fn user, acc ->
-            Map.put(acc, user.user_id, User.display_name(user))
-          end)
+          |> Enum.into(%{}, fn user -> {user.user_id, User.display_name(user)} end)
           |> Map.merge(usernames, fn _k, cached, _unresolved -> cached end)
     }
 
@@ -136,10 +125,8 @@ defmodule DeepThought.Slack.API.Message do
             [Map.put(profile, "user_id", user_id) | acc]
           end)
           |> Slack.update_users!()
-          |> Enum.reduce(%{}, fn user, acc ->
-            Map.put(acc, user.user_id, User.display_name(user))
-          end)
-          |> Map.merge(usernames)
+          |> Enum.into(%{}, fn user -> {user.user_id, User.display_name(user)} end)
+          |> Map.merge(usernames, fn _k, resolved, cached -> cached || resolved end)
     }
 
   @spec replace_usernames(Message.t()) :: Message.t()
@@ -148,17 +135,15 @@ defmodule DeepThought.Slack.API.Message do
       message
       | text:
           Regex.replace(~r/(?<=(\s))?<u>@([UW]\w+?)<\/u>(?=([\s,$]?))/ui, text, fn
-            _, prev_char, user_id, next_char when prev_char == "" and next_char == "" ->
-              " _@" <> usernames[user_id] <> "_ "
-
-            _, prev_char, user_id, _next_char when prev_char == "" ->
-              " _@" <> usernames[user_id] <> "_"
-
-            _, _prev_char, user_id, next_char when next_char == "" ->
-              "_@" <> usernames[user_id] <> "_ "
-
-            _, _prev_char, user_id, _next_char ->
-              "_@" <> usernames[user_id] <> "_"
+            _, prev_char, user_id, next_char ->
+              "_@#{usernames[user_id]}_"
+              |> surround(prev_char, next_char)
           end)
     }
+
+  @spec surround(String.t(), String.t(), String.t()) :: String.t()
+  defp surround(text, "", ""), do: " " <> text <> " "
+  defp surround(text, "", _next), do: " " <> text
+  defp surround(text, _prev, ""), do: text <> " "
+  defp surround(text, _prev, _next), do: text
 end
