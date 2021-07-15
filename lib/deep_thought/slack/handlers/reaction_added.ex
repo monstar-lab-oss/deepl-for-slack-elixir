@@ -7,7 +7,7 @@ defmodule DeepThought.Slack.Handler.ReactionAdded do
 
   alias DeepThought.DeepL
   alias DeepThought.Slack
-  alias DeepThought.Slack.API.Message
+  alias DeepThought.Slack.API.{ContextBlock, Message, SectionBlock, Text}
   alias DeepThought.Slack.{Language, MessageEscape}
 
   @doc """
@@ -34,13 +34,37 @@ defmodule DeepThought.Slack.Handler.ReactionAdded do
 
   @spec say_in_thread(String.t(), String.t(), map()) :: :ok | {:error, atom()}
   defp say_in_thread(channel_id, translation, message) do
-    Message.new(translation, channel_id)
-    |> Message.in_thread(extract_thread_ts(message))
-    |> Message.unescape()
+    reply =
+      Message.new(translation, channel_id)
+      |> Message.in_thread(extract_thread_ts(message))
+      |> Message.unescape()
+
+    Message.add_block(reply, translation_block(reply.text))
+    |> Message.add_block(footer_block(channel_id, message))
     |> Slack.API.chat_post_message()
   end
 
   @spec extract_thread_ts(map()) :: String.t()
   defp extract_thread_ts(%{"thread_ts" => thread_ts}), do: thread_ts
   defp extract_thread_ts(%{"ts" => ts}), do: ts
+
+  @spec translation_block(String.t()) :: SectionBlock.t()
+  defp translation_block(translation),
+    do:
+      SectionBlock.new()
+      |> SectionBlock.with_text(Text.new(translation))
+
+  @spec footer_block(String.t(), map()) :: ContextBlock.t()
+  defp footer_block(channel_id, message),
+    do:
+      ContextBlock.new()
+      |> ContextBlock.with_text(Text.new(generate_permalink(channel_id, message)))
+
+  @spec generate_permalink(String.t(), map()) :: String.t()
+  defp generate_permalink(channel_id, %{"ts" => message_ts}) do
+    case Slack.API.chat_get_permalink(channel_id, message_ts) do
+      {:ok, permalink} -> "<" <> permalink <> "|View original message>"
+      _ -> "⚠️ Could not find original message"
+    end
+  end
 end

@@ -26,6 +26,11 @@ defmodule DeepThought.MockCase do
 
   def setup_slack(env, method) do
     case method do
+      "/chat.getPermalink" ->
+        json(%{
+          "permalink" => "https://ghostbusters.slack.com/archives/C1H9RESGA/p135854651500008"
+        })
+
       "/chat.postMessage" ->
         json(%{})
 

@@ -12,6 +12,24 @@ defmodule DeepThought.Slack.API do
   plug Tesla.Middleware.Logger
 
   @doc """
+  Query Slack API for permalink to a given message in a channel.
+  """
+  @spec chat_get_permalink(String.t(), String.t()) ::
+          {:ok, String.t()} | {:error, non_neg_integer() | atom()}
+  def chat_get_permalink(channel_id, message_ts) do
+    case get("/chat.getPermalink", query: [channel: channel_id, message_ts: message_ts]) do
+      {:ok, response} ->
+        case response.status() do
+          200 -> {:ok, response.body()["permalink"]}
+          code -> {:error, code}
+        end
+
+      {:error, error} ->
+        {:error, error}
+    end
+  end
+
+  @doc """
   Post a message in a Slack channel or, when supplied a valid `thread_ts`, in a discussion thread.
   """
   @spec chat_post_message(Message.t()) :: :ok | {:error, atom()}

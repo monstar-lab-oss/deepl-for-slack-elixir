@@ -7,14 +7,15 @@ defmodule DeepThought.Slack.API.Message do
   alias DeepThought.Slack.{API, User}
   alias DeepThought.Slack.API.Message
 
-  @derive {Jason.Encoder, only: [:channel, :text, :thread_ts]}
+  @derive {Jason.Encoder, only: [:channel, :text, :blocks, :thread_ts]}
   @type t :: %__MODULE__{
           channel: String.t(),
           text: String.t(),
+          blocks: [any()],
           thread_ts: String.t() | nil,
           usernames: map()
         }
-  defstruct channel: nil, text: nil, thread_ts: nil, usernames: %{}
+  defstruct channel: nil, text: nil, blocks: [], thread_ts: nil, usernames: %{}
 
   @doc """
   Create a message struct, initializing the required fields.
@@ -27,6 +28,12 @@ defmodule DeepThought.Slack.API.Message do
   """
   @spec in_thread(Message.t(), String.t()) :: Message.t()
   def in_thread(message, thread_ts), do: %Message{message | thread_ts: thread_ts}
+
+  @doc """
+  Add a Slack Block to the message.
+  """
+  @spec add_block(Message.t(), any()) :: Message.t()
+  def add_block(message, block), do: %Message{message | blocks: message.blocks ++ [block]}
 
   @doc """
   Take a message ready for sending to Slack API and unescape all text that might’ve been previously escaped in order to
