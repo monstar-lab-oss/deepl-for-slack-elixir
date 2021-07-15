@@ -35,7 +35,7 @@ defmodule DeepThought.Slack.API.MessageTest do
     """
 
     expected = """
-    This message _Milan Vít_ contains some _Deep Thought_ usernames _dokku_ _Deep Thought_ And ends with text\
+    This message _@Milan Vít_ contains some _@Deep Thought_ usernames _@dokku_  _@Deep Thought_ And ends with text\
     """
 
     assert %{text: ^expected} = Message.new(original, "") |> Message.unescape()
@@ -77,7 +77,7 @@ defmodule DeepThought.Slack.API.MessageTest do
     This message contains a codeblock:
     ```awesome |&gt; elixir |&gt; code```
     This is also a valid codeblock:
-    ```say |> no |> to |> go ```\
+    ```say |> no |> to |> go ``` \
     """
 
     assert %{text: ^expected} = Message.new(original, "") |> Message.unescape()

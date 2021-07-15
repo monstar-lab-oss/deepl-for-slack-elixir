@@ -80,9 +80,18 @@ defmodule DeepThought.Slack.API.Message do
     do: %Message{
       message
       | text:
-          Regex.replace(~r/(?<=(\s))?<d>(.+?)<\/d>/mui, text, fn
-            _, prev_char, code when prev_char == "" -> " " <> code
-            _, _prev_char, code -> code
+          Regex.replace(~r/(?<=(\s))?<d>(.+?)<\/d>(?=([\s,$]?))/mui, text, fn
+            _, prev_char, code, next_char when prev_char == "" and next_char == "" ->
+              " " <> code <> " "
+
+            _, prev_char, code, _next_char when prev_char == "" ->
+              " " <> code
+
+            _, _prev_char, code, next_char when next_char == "" ->
+              code <> " "
+
+            _, _prev_char, code, _next_char ->
+              code
           end)
     }
 
@@ -138,9 +147,18 @@ defmodule DeepThought.Slack.API.Message do
     do: %Message{
       message
       | text:
-          Regex.replace(~r/<u>@([UW]\w+?)<\/u>(?=(.?))/ui, text, fn
-            _, user_id, next_char when next_char in ["", " "] -> "_" <> usernames[user_id] <> "_"
-            _, user_id, _next_char -> "_" <> usernames[user_id] <> "_ "
+          Regex.replace(~r/(?<=(\s))?<u>@([UW]\w+?)<\/u>(?=([\s,$]?))/ui, text, fn
+            _, prev_char, user_id, next_char when prev_char == "" and next_char == "" ->
+              " _@" <> usernames[user_id] <> "_ "
+
+            _, prev_char, user_id, _next_char when prev_char == "" ->
+              " _@" <> usernames[user_id] <> "_"
+
+            _, _prev_char, user_id, next_char when next_char == "" ->
+              "_@" <> usernames[user_id] <> "_ "
+
+            _, _prev_char, user_id, _next_char ->
+              "_@" <> usernames[user_id] <> "_"
           end)
     }
 end
