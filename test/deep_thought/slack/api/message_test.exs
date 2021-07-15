@@ -19,7 +19,7 @@ defmodule DeepThought.Slack.API.MessageTest do
 
   test "unescape/1 unwraps emoji" do
     original = """
-    A simple message <emoji>:email:</emoji><emoji>:thinking_face:</emoji> with an emoji <emoji>:rolling_on_the_floor_laughing:</emoji> And some text at the end\
+    A simple message <e>:email:</e><e>:thinking_face:</e> with an emoji <e>:rolling_on_the_floor_laughing:</e> And some text at the end\
     """
 
     expected = """
@@ -31,7 +31,7 @@ defmodule DeepThought.Slack.API.MessageTest do
 
   test "unescape/1 unwraps usernames" do
     original = """
-    This message <username>@U9FE1J23V</username> contains some <username>@U0233M3T96K</username> usernames <username>@U0171KB36DN</username><username>@U0233M3T96K</username>And ends with text\
+    This message <u>@U9FE1J23V</u> contains some <u>@U0233M3T96K</u> usernames <u>@U0171KB36DN</u><u>@U0233M3T96K</u>And ends with text\
     """
 
     expected = """
@@ -43,7 +43,7 @@ defmodule DeepThought.Slack.API.MessageTest do
 
   test "unescape/1 unwraps channel names" do
     original = """
-    Similarly, <channel>#C023P3L5WFN</channel> this message <channel>#C024C2HU4BZ</channel>references a bunch <channel>#C023P3L5WFN</channel><channel>#C024C2HU4BZ</channel>of channels\
+    Similarly, <c>#C023P3L5WFN</c> this message <c>#C024C2HU4BZ</c>references a bunch <c>#C023P3L5WFN</c><c>#C024C2HU4BZ</c>of channels\
     """
 
     expected = """
@@ -55,11 +55,41 @@ defmodule DeepThought.Slack.API.MessageTest do
 
   test "unescape/1 unwraps links" do
     original = """
-    This <link>https://www.milanvit.net</link> message contains <link>https://www.milanvit.net|Czech/in/Japan</link> links. To e-mail <link>mailto:milanvit@milanvit.net</link> as well? <link>mailto:milanvit@milanvit.net|You bet.</link>\
+    This <l>https://www.milanvit.net</l> message contains <l>https://www.milanvit.net|Czech/in/Japan</l> links. To e-mail <l>mailto:milanvit@milanvit.net</l> as well? <l>mailto:milanvit@milanvit.net|You bet.</l>\
     """
 
     expected = """
     This <https://www.milanvit.net> message contains <https://www.milanvit.net|Czech/in/Japan> links. To e-mail <mailto:milanvit@milanvit.net> as well? <mailto:milanvit@milanvit.net|You bet.>\
+    """
+
+    assert %{text: ^expected} = Message.new(original, "") |> Message.unescape()
+  end
+
+  test "unescape/1 unwraps codeblocks" do
+    original = """
+    This message contains a codeblock:
+    <d>```awesome |&gt; elixir |&gt; code```</d>
+    This is also a valid codeblock:
+    <d>```say |> no |> to |> go ```</d>\
+    """
+
+    expected = """
+    This message contains a codeblock:
+    ```awesome |&gt; elixir |&gt; code```
+    This is also a valid codeblock:
+    ```say |> no |> to |> go ```\
+    """
+
+    assert %{text: ^expected} = Message.new(original, "") |> Message.unescape()
+  end
+
+  test "unescape/1 unwraps inline code" do
+    original = """
+    This message <d>`contains`</d> in-line <d>`code`</d>, in quite <d>`a bit`</d> of various <d>`forms`</d>,<d>`this one is fine`</d>,<d>`and so is this one`</d>, but what about if we <d>`make things`</d> really difficult`?\
+    """
+
+    expected = """
+    This message `contains` in-line `code`, in quite `a bit` of various `forms`, `this one is fine`, `and so is this one`, but what about if we `make things` really difficult`?\
     """
 
     assert %{text: ^expected} = Message.new(original, "") |> Message.unescape()

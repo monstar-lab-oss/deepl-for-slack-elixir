@@ -40,17 +40,18 @@ defmodule DeepThought.Slack.API.Message do
       |> unescape_channels
       |> unescape_links
       |> unescape_usernames
+      |> unescape_code
 
   @spec unescape_emojis(Message.t()) :: Message.t()
   defp unescape_emojis(%{text: text} = message),
-    do: %Message{message | text: Regex.replace(~r/<\/?emoji>/ui, text, "")}
+    do: %Message{message | text: Regex.replace(~r/<\/?e>/ui, text, "")}
 
   @spec unescape_channels(Message.t()) :: Message.t()
   defp unescape_channels(%{text: text} = message),
     do: %Message{
       message
       | text:
-          Regex.replace(~r/<channel>(#C\w+)<\/channel>/ui, text, fn _, channel_id ->
+          Regex.replace(~r/<c>(#C\w+)<\/c>/ui, text, fn _, channel_id ->
             "<" <> channel_id <> ">"
           end)
     }
@@ -60,7 +61,7 @@ defmodule DeepThought.Slack.API.Message do
     do: %Message{
       message
       | text:
-          Regex.replace(~r/<link>(.+?)<\/link>/ui, text, fn _, link ->
+          Regex.replace(~r/<l>(.+?)<\/l>/ui, text, fn _, link ->
             "<" <> link <> ">"
           end)
     }
@@ -74,12 +75,23 @@ defmodule DeepThought.Slack.API.Message do
       |> fetch_remaining_usernames
       |> replace_usernames
 
+  @spec unescape_code(Message.t()) :: Message.t()
+  def unescape_code(%{text: text} = message),
+    do: %Message{
+      message
+      | text:
+          Regex.replace(~r/(?<=(\s))?<d>(.+?)<\/d>/mui, text, fn
+            _, prev_char, code when prev_char == "" -> " " <> code
+            _, _prev_char, code -> code
+          end)
+    }
+
   @spec collect_user_ids(Message.t()) :: Message.t()
   defp collect_user_ids(%{text: text} = message),
     do: %Message{
       message
       | usernames:
-          Regex.scan(~r/<username>@([UW]\w+?)<\/username>/ui, text, capture: :all_but_first)
+          Regex.scan(~r/<u>@([UW]\w+?)<\/u>/ui, text, capture: :all_but_first)
           |> List.flatten()
           |> Enum.into(%{}, fn user_id -> {user_id, nil} end)
     }
@@ -126,7 +138,7 @@ defmodule DeepThought.Slack.API.Message do
     do: %Message{
       message
       | text:
-          Regex.replace(~r/<username>@([UW]\w+?)<\/username>(?=(.?))/ui, text, fn
+          Regex.replace(~r/<u>@([UW]\w+?)<\/u>(?=(.?))/ui, text, fn
             _, user_id, next_char when next_char in ["", " "] -> "_" <> usernames[user_id] <> "_"
             _, user_id, _next_char -> "_" <> usernames[user_id] <> "_ "
           end)

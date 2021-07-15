@@ -27,21 +27,21 @@ defmodule DeepThought.Slack.MessageEscape do
   defp escape_emojis(text),
     do:
       Regex.replace(~r/(:(?![\n])[()#$@\-\w]+:)/ui, text, fn _, emoji ->
-        "<emoji>" <> emoji <> "</emoji>"
+        "<e>" <> emoji <> "</e>"
       end)
 
   @spec escape_usernames(String.t()) :: String.t()
   defp escape_usernames(text),
     do:
       Regex.replace(~r/<(@[UW]\w+?)(?:\|.+?)?>/ui, text, fn _, username ->
-        "<username>" <> username <> "</username>"
+        "<u>" <> username <> "</u>"
       end)
 
   @spec escape_channels(String.t()) :: String.t()
   defp escape_channels(text),
     do:
       Regex.replace(~r/<(#C\w+)(?:\|.+?)?>/ui, text, fn _, channel_id ->
-        "<channel>" <> channel_id <> "</channel>"
+        "<c>" <> channel_id <> "</c>"
       end)
 
   @spec escape_links(String.t()) :: String.t()
@@ -52,7 +52,7 @@ defmodule DeepThought.Slack.MessageEscape do
         ~r/<((?:mailto:\S+?@\S+?(?:\|.+?)?)|(?:https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})(?:\|.+?)?)>/ui,
         text,
         fn _, link ->
-          "<link>" <> link <> "</link>"
+          "<l>" <> link <> "</l>"
         end
       )
 
@@ -67,13 +67,13 @@ defmodule DeepThought.Slack.MessageEscape do
   defp escape_codeblocks(text),
     do:
       Regex.replace(~r/(^```.+?```$)/mui, text, fn _, code ->
-        "<code>" <> code <> "</code>"
+        "<d>" <> code <> "</d>"
       end)
 
   @spec escape_inline_code(String.t()) :: String.t()
   defp escape_inline_code(text),
     do:
       Regex.replace(~r/(?<![`>])(`.+?`)(?![`<])/ui, text, fn _, code ->
-        "<code>" <> code <> "</code>"
+        "<d>" <> code <> "</d>"
       end)
 end

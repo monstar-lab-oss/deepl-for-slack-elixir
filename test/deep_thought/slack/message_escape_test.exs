@@ -16,13 +16,13 @@ defmodule DeepThought.Slack.MessageEscapeTest do
     assert expected == MessageEscape.escape(original)
   end
 
-  test "escape/1 wraps emoji in <emoji> tag" do
+  test "escape/1 wraps emoji" do
     original = """
     A simple message :email::thinking_face: with an emoji :rolling_on_the_floor_laughing: And some text at the end\
     """
 
     expected = """
-    A simple message <emoji>:email:</emoji><emoji>:thinking_face:</emoji> with an emoji <emoji>:rolling_on_the_floor_laughing:</emoji> And some text at the end\
+    A simple message <e>:email:</e><e>:thinking_face:</e> with an emoji <e>:rolling_on_the_floor_laughing:</e> And some text at the end\
     """
 
     assert expected == MessageEscape.escape(original)
@@ -30,18 +30,14 @@ defmodule DeepThought.Slack.MessageEscapeTest do
 
   test "escape/1 wraps emoji, nightmare difficulty" do
     messages = [
-      %{original: ":any-non-whitespace:", expected: "<emoji>:any-non-whitespace:</emoji>"},
-      %{original: ":text1:sample2:", expected: "<emoji>:text1:</emoji>sample2:"},
-      %{original: ":@(1@#$@SD: :s:", expected: "<emoji>:@(1@#$@SD:</emoji> <emoji>:s:</emoji>"},
+      %{original: ":any-non-whitespace:", expected: "<e>:any-non-whitespace:</e>"},
+      %{original: ":text1:sample2:", expected: "<e>:text1:</e>sample2:"},
+      %{original: ":@(1@#$@SD: :s:", expected: "<e>:@(1@#$@SD:</e> <e>:s:</e>"},
       %{
         original: ":nospace::inbetween: because there are 2 colons in the middle",
-        expected:
-          "<emoji>:nospace:</emoji><emoji>:inbetween:</emoji> because there are 2 colons in the middle"
+        expected: "<e>:nospace:</e><e>:inbetween:</e> because there are 2 colons in the middle"
       },
-      %{
-        original: ":nospace:middle:nospace:",
-        expected: "<emoji>:nospace:</emoji>middle<emoji>:nospace:</emoji>"
-      }
+      %{original: ":nospace:middle:nospace:", expected: "<e>:nospace:</e>middle<e>:nospace:</e>"}
     ]
 
     Enum.each(messages, fn message ->
@@ -55,7 +51,7 @@ defmodule DeepThought.Slack.MessageEscapeTest do
     """
 
     expected = """
-    This message <username>@U9FE1J23V</username> contains some <username>@U0233M3T96K</username> usernames <username>@U0171KB36DN</username><username>@U0233M3T96K</username>And ends with text\
+    This message <u>@U9FE1J23V</u> contains some <u>@U0233M3T96K</u> usernames <u>@U0171KB36DN</u><u>@U0233M3T96K</u>And ends with text\
     """
 
     assert expected == MessageEscape.escape(original)
@@ -67,7 +63,7 @@ defmodule DeepThought.Slack.MessageEscapeTest do
     """
 
     expected = """
-    Similarly, <channel>#C023P3L5WFN</channel> this message <channel>#C024C2HU4BZ</channel>references a bunch <channel>#C023P3L5WFN</channel><channel>#C024C2HU4BZ</channel>of channels\
+    Similarly, <c>#C023P3L5WFN</c> this message <c>#C024C2HU4BZ</c>references a bunch <c>#C023P3L5WFN</c><c>#C024C2HU4BZ</c>of channels\
     """
 
     assert expected == MessageEscape.escape(original)
@@ -79,7 +75,7 @@ defmodule DeepThought.Slack.MessageEscapeTest do
     """
 
     expected = """
-    This <link>https://www.milanvit.net</link> message contains <link>https://www.milanvit.net|Czech/in/Japan</link> links. To e-mail <link>mailto:milanvit@milanvit.net</link> as well? <link>mailto:milanvit@milanvit.net|You bet.</link>\
+    This <l>https://www.milanvit.net</l> message contains <l>https://www.milanvit.net|Czech/in/Japan</l> links. To e-mail <l>mailto:milanvit@milanvit.net</l> as well? <l>mailto:milanvit@milanvit.net|You bet.</l>\
     """
 
     assert expected == MessageEscape.escape(original)
@@ -95,9 +91,9 @@ defmodule DeepThought.Slack.MessageEscapeTest do
 
     expected = """
     This message contains a codeblock:
-    <code>```awesome |&gt; elixir |&gt; code```</code>
+    <d>```awesome |&gt; elixir |&gt; code```</d>
     This is also a valid codeblock:
-    <code>```say |> no |> to |> go ```</code>\
+    <d>```say |> no |> to |> go ```</d>\
     """
 
     assert expected == MessageEscape.escape(original)
@@ -109,7 +105,7 @@ defmodule DeepThought.Slack.MessageEscapeTest do
     """
 
     expected = """
-    This message <code>`contains`</code> in-line <code>`code`</code>, in quite <code>`a bit`</code> of various <code>`forms`</code>,<code>`this one is fine`</code>,<code>`and so is this one`</code>, but what about if we <code>`make things`</code> really difficult`?\
+    This message <d>`contains`</d> in-line <d>`code`</d>, in quite <d>`a bit`</d> of various <d>`forms`</d>,<d>`this one is fine`</d>,<d>`and so is this one`</d>, but what about if we <d>`make things`</d> really difficult`?\
     """
 
     assert expected == MessageEscape.escape(original)

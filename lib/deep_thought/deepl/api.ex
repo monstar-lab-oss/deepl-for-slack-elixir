@@ -42,6 +42,6 @@ defmodule DeepThought.DeepL.API do
       "text" => text,
       "target_lang" => target_language,
       "tag_handling" => "xml",
-      "ignore_tags" => "channel,code,emoji,link"
+      "ignore_tags" => "c,d,e,l,u"
     }
 end
