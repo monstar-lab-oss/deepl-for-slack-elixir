@@ -45,7 +45,7 @@ defmodule DeepThought.Slack.Translation do
             t.inserted_at >= ^one_day_ago()
       )
 
-  @spec one_day_ago() :: NaiveDatetime.t()
+  @spec one_day_ago() :: NaiveDateTime.t()
   defp one_day_ago, do: NaiveDateTime.utc_now() |> NaiveDateTime.add(-24 * 60 * 60)
 
   @doc """
