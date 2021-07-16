@@ -55,4 +55,54 @@ defmodule DeepThought.SlackTest do
       assert user2.user_id == "U987654"
     end
   end
+
+  describe "translations" do
+    alias DeepThought.Slack.Translation
+
+    @valid_attrs %{
+      channel_id: "C12345",
+      message_ts: "12345.000",
+      status: "success",
+      target_language: "JA",
+      user_id: "U12345"
+    }
+    @invalid_attrs %{
+      channel_id: nil,
+      message_ts: nil,
+      status: nil,
+      target_language: nil,
+      user_id: nil
+    }
+
+    def translation_fixture(attrs \\ %{}) do
+      {:ok, translation} =
+        attrs
+        |> Enum.into(@valid_attrs)
+        |> Slack.create_translation()
+
+      translation
+    end
+
+    test "recently_translated?/3 can find a recently translated message" do
+      %{channel_id: channel_id, message_ts: message_ts, target_language: target_language} =
+        @valid_attrs
+
+      assert false == Slack.recently_translated?(channel_id, message_ts, target_language)
+      assert {:ok, %Translation{}} = Slack.create_translation(@valid_attrs)
+      assert true == Slack.recently_translated?(channel_id, message_ts, target_language)
+    end
+
+    test "create_translation/1 with valid data creates a translation" do
+      assert {:ok, %Translation{} = translation} = Slack.create_translation(@valid_attrs)
+      assert translation.channel_id == "C12345"
+      assert translation.message_ts == "12345.000"
+      assert translation.status == "success"
+      assert translation.target_language == "JA"
+      assert translation.user_id == "U12345"
+    end
+
+    test "create_translation/1 with invalid data returns error changeset" do
+      assert {:error, %Ecto.Changeset{}} = Slack.create_translation(@invalid_attrs)
+    end
+  end
 end

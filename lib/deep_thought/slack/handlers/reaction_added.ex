@@ -18,17 +18,40 @@ defmodule DeepThought.Slack.Handler.ReactionAdded do
   @spec reaction_added(map()) :: {:ok, String.t()} | {:error, reason()}
   def reaction_added(%{
         "item" => %{"channel" => channel_id, "ts" => message_ts, "type" => "message"},
+        "user" => user_id,
         "reaction" => reaction
       }) do
     with {:ok, %{deepl_code: language_code}} <- Language.new(reaction),
-         {:ok, [%{"text" => original} = message | _]} <-
-           Slack.API.conversations_replies(channel_id, message_ts),
-         escaped_original <- MessageEscape.escape(original),
-         {_, translation} <- DeepL.API.translate(escaped_original, language_code),
-         :ok <- say_in_thread(channel_id, translation, message) do
-      {:ok, translation}
+         false <- Slack.recently_translated?(channel_id, message_ts, language_code) do
+      record = %{
+        channel_id: channel_id,
+        message_ts: message_ts,
+        user_id: user_id,
+        target_language: language_code
+      }
+
+      with {:ok, [%{"text" => original} = message | _]} <-
+             Slack.API.conversations_replies(channel_id, message_ts),
+           escaped_original <- MessageEscape.escape(original),
+           {_, translation} <- DeepL.API.translate(escaped_original, language_code),
+           :ok <- say_in_thread(channel_id, translation, message) do
+        record
+        |> Map.put(:status, "success")
+        |> Slack.create_translation()
+
+        {:ok, translation}
+      else
+        {:error, error} ->
+          record
+          |> Map.put(:status, Kernel.inspect(error))
+          |> Slack.create_translation()
+      end
     else
-      error -> error
+      true ->
+        {:error, :recently_translated}
+
+      error ->
+        error
     end
   end
 

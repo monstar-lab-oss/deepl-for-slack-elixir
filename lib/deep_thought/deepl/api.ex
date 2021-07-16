@@ -19,17 +19,11 @@ defmodule DeepThought.DeepL.API do
   """
   @spec translate(String.t(), String.t()) :: {:ok, String.t()} | {:error, String.t()}
   def translate(text, target_language) do
-    result = post("/translate", translate_request_body(text, target_language))
+    {:ok, response} = post("/translate", translate_request_body(text, target_language))
 
-    case result do
-      {:ok, response} ->
-        case response.status() do
-          200 ->
-            {:ok, Enum.at(response.body()["translations"], 0)["text"]}
-
-          _ ->
-            {:error, "Failed to translate due to an unexpected response from translation server"}
-        end
+    case response.status() do
+      200 ->
+        {:ok, Enum.at(response.body()["translations"], 0)["text"]}
 
       _ ->
         {:error, "Failed to translate due to an unexpected response from translation server"}

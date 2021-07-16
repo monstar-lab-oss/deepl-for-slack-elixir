@@ -5,8 +5,7 @@ defmodule DeepThought.Slack do
 
   import Ecto.Query, warn: false
   alias DeepThought.Repo
-
-  alias DeepThought.Slack.User
+  alias DeepThought.Slack.{Translation, User}
 
   @doc """
   Find users by user_ids.
@@ -35,5 +34,34 @@ defmodule DeepThought.Slack do
       ]
     end)
     |> Enum.reverse()
+  end
+
+  @doc """
+  Determines whether message was recently translated into a given language.
+  """
+  @spec recently_translated?(String.t(), String.t(), String.t()) :: boolean()
+  def recently_translated?(channel_id, message_ts, target_language),
+    do:
+      Translation.recently_translated?(channel_id, message_ts, target_language)
+      |> Repo.all()
+      |> Enum.count() > 0
+
+  @doc """
+  Creates a translation.
+
+  ## Examples
+
+      iex> create_translation(%{field: value})
+      {:ok, %Translation{}}
+
+      iex> create_translation(%{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  @spec create_translation(map()) :: Translation.r()
+  def create_translation(attrs \\ %{}) do
+    %Translation{}
+    |> Translation.changeset(attrs)
+    |> Repo.insert()
   end
 end
