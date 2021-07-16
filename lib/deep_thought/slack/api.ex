@@ -32,11 +32,17 @@ defmodule DeepThought.Slack.API do
   @doc """
   Post a message in a Slack channel or, when supplied a valid `thread_ts`, in a discussion thread.
   """
-  @spec chat_post_message(Message.t()) :: :ok | {:error, atom()}
+  @spec chat_post_message(Message.t()) :: :ok | {:error, atom() | String.t()}
   def chat_post_message(message) do
     case post("/chat.postMessage", message) do
-      {:ok, _response} -> :ok
-      error -> error
+      {:ok, response} ->
+        case response.body()["ok"] do
+          true -> :ok
+          false -> {:error, response.body()["error"]}
+        end
+
+      error ->
+        error
     end
   end
 
