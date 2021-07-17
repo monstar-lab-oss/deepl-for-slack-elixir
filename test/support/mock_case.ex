@@ -31,6 +31,9 @@ defmodule DeepThought.MockCase do
           "permalink" => "https://ghostbusters.slack.com/archives/C1H9RESGA/p135854651500008"
         })
 
+      "/chat.postEphemeral" ->
+        json(%{"ok" => true})
+
       "/chat.postMessage" ->
         json(%{"ok" => true})
 

@@ -5,10 +5,25 @@ defmodule DeepThought.Slack.Handler.Delete do
   translation from the thread and respond to the user via an ephemeral message.
   """
 
+  alias DeepThought.Slack
+  alias DeepThought.Slack.API.Message
+
   @doc """
   """
-  @spec(delete_message(map(), map()) :: :ok, {:error, atom()})
-  def delete_message(action, context) do
+  @spec delete_message(map(), map()) :: :ok | {:error, atom()}
+  def delete_message(_action, %{
+        "container" => %{
+          "channel_id" => channel_id,
+          "message_ts" => message_ts,
+          "thread_ts" => thread_ts
+        },
+        "user" => %{"id" => user_id}
+      }) do
+    Message.new("I deleted the translation!", channel_id)
+    |> Message.in_thread(thread_ts)
+    |> Message.for_user(user_id)
+    |> Slack.API.chat_post_ephemeral()
+
     :ok
   end
 end

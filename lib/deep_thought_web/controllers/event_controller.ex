@@ -11,7 +11,7 @@ defmodule DeepThoughtWeb.EventController do
   Receive a Slack event and based on pattern matching the payload, dispatch an appropriate response or action.
   """
   @spec process(Plug.Conn.t(), map()) :: Plug.Conn.t()
-  def process(conn, %{"type" => "url_verification", "challenge" => challenge}) do
+  def process(conn, %{"challenge" => challenge, "type" => "url_verification"}) do
     json(conn, %{challenge: challenge})
   end
 

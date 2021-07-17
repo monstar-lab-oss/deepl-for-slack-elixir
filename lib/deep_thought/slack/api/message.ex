@@ -7,15 +7,16 @@ defmodule DeepThought.Slack.API.Message do
   alias DeepThought.Slack.{API, User}
   alias DeepThought.Slack.API.Message
 
-  @derive {Jason.Encoder, only: [:channel, :text, :blocks, :thread_ts]}
+  @derive {Jason.Encoder, only: [:channel, :text, :blocks, :thread_ts, :user]}
   @type t :: %__MODULE__{
           channel: String.t(),
           text: String.t(),
           blocks: [any()],
           thread_ts: String.t() | nil,
+          user: String.t() | nil,
           usernames: map()
         }
-  defstruct channel: nil, text: nil, blocks: [], thread_ts: nil, usernames: %{}
+  defstruct channel: nil, text: nil, blocks: [], thread_ts: nil, user: nil, usernames: %{}
 
   @doc """
   Create a message struct, initializing the required fields.
@@ -28,6 +29,13 @@ defmodule DeepThought.Slack.API.Message do
   """
   @spec in_thread(Message.t(), String.t()) :: Message.t()
   def in_thread(message, thread_ts), do: %Message{message | thread_ts: thread_ts}
+
+  @doc """
+  Take an existing message and make it targetted to a specific user by supplying a `user` value. Only for ephemeral
+  messages.
+  """
+  @spec for_user(Message.t(), String.t()) :: Message.t()
+  def for_user(message, user_id), do: %Message{message | user: user_id}
 
   @doc """
   Add a Slack Block to the message.

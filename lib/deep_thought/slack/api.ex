@@ -30,6 +30,23 @@ defmodule DeepThought.Slack.API do
   end
 
   @doc """
+  Post a Slack ephemeral message, which is visible only to a specific user.
+  """
+  @spec chat_post_ephemeral(Message.t()) :: :ok | {:error, atom() | String.t()}
+  def chat_post_ephemeral(message) do
+    case post("/chat.postEphemeral", message) do
+      {:ok, response} ->
+        case response.body()["ok"] do
+          true -> :ok
+          false -> {:error, response.body()["error"]}
+        end
+
+      error ->
+        error
+    end
+  end
+
+  @doc """
   Post a message in a Slack channel or, when supplied a valid `thread_ts`, in a discussion thread.
   """
   @spec chat_post_message(Message.t()) :: :ok | {:error, atom() | String.t()}

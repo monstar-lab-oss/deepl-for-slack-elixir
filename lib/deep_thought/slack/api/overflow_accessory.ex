@@ -17,10 +17,10 @@ defmodule DeepThought.Slack.API.OverflowAccessory do
   @doc """
   Create a new accessory of Overflow type.
   """
-  @spec new(Option.t(), Confirm.t(), String.t()) :: OverflowAccessory.t()
+  @spec new(Option.t() | [Option.t()], Confirm.t(), String.t()) :: OverflowAccessory.t()
   def new(options, confirm, action_id) when is_list(options),
     do: %OverflowAccessory{action_id: action_id, options: options, confirm: confirm}
 
   def new(option, confirm, action_id),
-    do: %OverflowAccessory{action_id: action_id, options: [option], confirm: confirm}
+    do: OverflowAccessory.new([option], confirm, action_id)
 end
