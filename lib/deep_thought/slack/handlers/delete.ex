@@ -19,11 +19,13 @@ defmodule DeepThought.Slack.Handler.Delete do
         },
         "user" => %{"id" => user_id}
       }) do
-    Message.new("I deleted the translation!", channel_id)
-    |> Message.in_thread(thread_ts)
-    |> Message.for_user(user_id)
-    |> Slack.API.chat_post_ephemeral()
+    with :ok <- Slack.API.chat_delete(channel_id, message_ts) do
+      Message.new("I deleted the translation!", channel_id)
+      |> Message.in_thread(thread_ts)
+      |> Message.for_user(user_id)
+      |> Slack.API.chat_post_ephemeral()
 
-    :ok
+      :ok
+    end
   end
 end

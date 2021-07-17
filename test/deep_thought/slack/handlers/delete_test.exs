@@ -30,7 +30,7 @@ defmodule DeepThought.Slack.Handler.DeleteTest do
     {:ok, translation: translation}
   end
 
-  test "delete_message/1 returns :ok atom on success", %{translation: translation} do
+  test "delete_message/1 returns :ok atom on success" do
     assert :ok == Delete.delete_message(nil, @context)
   end
 end
