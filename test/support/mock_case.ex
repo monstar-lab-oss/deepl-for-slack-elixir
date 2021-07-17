@@ -32,7 +32,7 @@ defmodule DeepThought.MockCase do
         })
 
       "/chat.postMessage" ->
-        json(%{})
+        json(%{"ok" => true})
 
       "/conversations.replies" ->
         json(%{"messages" => [%{"text" => "Hello, world!", "ts" => "1625806692.000500"}]})
