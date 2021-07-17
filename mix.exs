@@ -60,7 +60,9 @@ defmodule DeepThought.MixProject do
       {:ex_doc, "~> 0.24", only: :dev, runtime: false},
       {:doctor, "~> 0.18.0", only: :dev, runtime: false},
       {:excoveralls, "~> 0.14", only: :test, runtime: false},
-      {:appsignal_phoenix, "~> 2.0"}
+      {:appsignal_phoenix, "~> 2.0"},
+      {:tesla, "~> 1.4"},
+      {:hackney, "~> 1.17"}
     ]
   end
 

@@ -21,6 +21,8 @@ config :deep_thought, DeepThoughtWeb.Endpoint,
 # Print only warnings and errors during test
 config :logger, level: :warn
 
+config :tesla, adapter: Tesla.Mock
+
 config :deep_thought, :deepl, auth_key: "auth_key"
 
 config :deep_thought, :slack,
