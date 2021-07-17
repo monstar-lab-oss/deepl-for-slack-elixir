@@ -86,7 +86,7 @@ defmodule DeepThought.Slack.Handler.ReactionAdded do
     do:
       Text.new("Delete translation", "plain_text")
       |> Option.new("delete")
-      |> OverflowAccessory.new(Confirm.default(), "overflow")
+      |> OverflowAccessory.new(Confirm.default(), "delete_overflow")
 
   @spec extract_thread_ts(map()) :: String.t()
   defp extract_thread_ts(%{"thread_ts" => thread_ts}), do: thread_ts

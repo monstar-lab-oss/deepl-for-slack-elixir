@@ -7,7 +7,7 @@ defmodule DeepThought.EventSupervisor do
   @opts [restart: :transient]
 
   @doc """
-  Determines the appropriate handler for an evetn and dispatches the event details to that particular event handler.
+  Determines the appropriate handler for an event and dispatches the event details to that particular event handler.
   """
   @spec process(String.t(), map()) :: DynamicSupervisor.on_start_child()
   def process("reaction_added", event),
