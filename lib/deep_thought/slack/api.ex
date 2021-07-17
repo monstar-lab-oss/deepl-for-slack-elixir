@@ -67,14 +67,15 @@ defmodule DeepThought.Slack.API do
   end
 
   @doc """
-  Post a message in a Slack channel or, when supplied a valid `thread_ts`, in a discussion thread.
+  Post a message in a Slack channel or, when supplied a valid `thread_ts`, in a discussion thread. In case of success,
+  returns channel ID and message TS of the posted message.
   """
-  @spec chat_post_message(Message.t()) :: :ok | api_error()
+  @spec chat_post_message(Message.t()) :: {:ok, String.t(), String.t()} | api_error()
   def chat_post_message(message) do
     case post("/chat.postMessage", message) do
       {:ok, response} ->
         case {response.status(), response.body()["ok"]} do
-          {200, true} -> :ok
+          {200, true} -> {:ok, response.body()["channel"], response.body()["ts"]}
           {_, false} -> {:error, response.body()["error"]}
           {code, _} -> {:error, code}
         end

@@ -32,6 +32,9 @@ defmodule DeepThought.MockCase do
           "permalink" => "https://ghostbusters.slack.com/archives/C1H9RESGA/p135854651500008"
         })
 
+      "/chat.postMessage" ->
+        json(%{"ok" => true, "channel" => "C1H9RESGA", "ts" => "1459571776.000001"})
+
       "/chat." <> _rest ->
         json(%{"ok" => true})
 

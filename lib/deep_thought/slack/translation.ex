@@ -14,6 +14,8 @@ defmodule DeepThought.Slack.Translation do
           message_ts: String.t() | nil,
           status: String.t() | nil,
           target_language: String.t() | nil,
+          translation_channel_id: String.t() | nil,
+          translation_message_ts: String.t() | nil,
           user_id: String.t() | nil,
           inserted_at: NaiveDateTime.t() | nil,
           updated_at: NaiveDateTime.t() | nil
@@ -24,6 +26,8 @@ defmodule DeepThought.Slack.Translation do
     field :message_ts, :string
     field :status, :string
     field :target_language, :string
+    field :translation_channel_id, :string
+    field :translation_message_ts, :string
     field :user_id, :string
 
     timestamps()
@@ -54,7 +58,15 @@ defmodule DeepThought.Slack.Translation do
   @spec changeset(Translation.t(), map()) :: Ecto.Changeset.t()
   def changeset(translation, attrs) do
     translation
-    |> cast(attrs, [:user_id, :channel_id, :message_ts, :target_language, :status])
+    |> cast(attrs, [
+      :user_id,
+      :channel_id,
+      :message_ts,
+      :target_language,
+      :status,
+      :translation_channel_id,
+      :translation_message_ts
+    ])
     |> validate_required([:user_id, :channel_id, :message_ts, :target_language, :status])
   end
 end
