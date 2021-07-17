@@ -13,12 +13,14 @@ defmodule DeepThought.Slack.Handler.DeleteTest do
     channel_id: "C12345",
     message_ts: "123456789.123456",
     target_language: "JA",
+    translation_channel_id: "C12345",
+    translation_message_ts: "123456789.654321",
     status: "success"
   }
   @context %{
     "container" => %{
-      "channel_id" => @message.channel_id,
-      "message_ts" => @message.message_ts,
+      "channel_id" => @message.translation_channel_id,
+      "message_ts" => @message.translation_message_ts,
       "thread_ts" => "T12345"
     },
     "user" => %{"id" => @message.user_id}
