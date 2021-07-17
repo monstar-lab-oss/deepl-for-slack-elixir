@@ -7,7 +7,17 @@ defmodule DeepThought.Slack.Handler.ReactionAdded do
 
   alias DeepThought.DeepL
   alias DeepThought.Slack
-  alias DeepThought.Slack.API.{ContextBlock, Message, SectionBlock, Text}
+
+  alias DeepThought.Slack.API.{
+    Confirm,
+    ContextBlock,
+    Message,
+    Option,
+    OverflowAccessory,
+    SectionBlock,
+    Text
+  }
+
   alias DeepThought.Slack.{Language, MessageEscape}
 
   @doc """
@@ -34,9 +44,14 @@ defmodule DeepThought.Slack.Handler.ReactionAdded do
              Slack.API.conversations_replies(channel_id, message_ts),
            escaped_original <- MessageEscape.escape(original),
            {_, translation} <- DeepL.API.translate(escaped_original, language_code),
-           :ok <- say_in_thread(channel_id, translation, message) do
+           {:ok, translation_channel_id, translation_message_ts} <-
+             say_in_thread(channel_id, translation, message) do
         record
-        |> Map.put(:status, "success")
+        |> Map.merge(%{
+          status: "success",
+          translation_channel_id: translation_channel_id,
+          translation_message_ts: translation_message_ts
+        })
         |> Slack.create_translation()
 
         {:ok, translation}
@@ -55,17 +70,29 @@ defmodule DeepThought.Slack.Handler.ReactionAdded do
     end
   end
 
-  @spec say_in_thread(String.t(), String.t(), map()) :: :ok | {:error, atom()}
+  @spec say_in_thread(String.t(), String.t(), map()) ::
+          {:ok, String.t(), String.t()} | {:error, atom()}
   defp say_in_thread(channel_id, translation, message) do
     reply =
       Message.new(translation, channel_id)
       |> Message.in_thread(extract_thread_ts(message))
       |> Message.unescape()
 
-    Message.add_block(reply, translation_block(reply.text))
+    Message.add_block(
+      reply,
+      translation_block(reply.text)
+      |> SectionBlock.add_accessory(delete_button())
+    )
     |> Message.add_block(footer_block(channel_id, message))
     |> Slack.API.chat_post_message()
   end
+
+  @spec delete_button() :: OverflowAccessory.t()
+  defp delete_button,
+    do:
+      Text.new("Delete translation", "plain_text")
+      |> Option.new("delete")
+      |> OverflowAccessory.new(Confirm.default(), "delete_overflow")
 
   @spec extract_thread_ts(map()) :: String.t()
   defp extract_thread_ts(%{"thread_ts" => thread_ts}), do: thread_ts

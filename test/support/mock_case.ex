@@ -28,14 +28,21 @@ defmodule DeepThought.MockCase do
     case method do
       "/chat.getPermalink" ->
         json(%{
+          "ok" => true,
           "permalink" => "https://ghostbusters.slack.com/archives/C1H9RESGA/p135854651500008"
         })
 
       "/chat.postMessage" ->
-        json(%{})
+        json(%{"ok" => true, "channel" => "C1H9RESGA", "ts" => "1459571776.000001"})
+
+      "/chat." <> _rest ->
+        json(%{"ok" => true})
 
       "/conversations.replies" ->
-        json(%{"messages" => [%{"text" => "Hello, world!", "ts" => "1625806692.000500"}]})
+        json(%{
+          "ok" => true,
+          "messages" => [%{"text" => "Hello, world!", "ts" => "1625806692.000500"}]
+        })
 
       "/users.profile.get" ->
         real_name =
@@ -45,7 +52,7 @@ defmodule DeepThought.MockCase do
             "U0171KB36DN" -> "dokku"
           end
 
-        json(%{"profile" => %{"real_name" => real_name}})
+        json(%{"ok" => true, "profile" => %{"real_name" => real_name}})
     end
   end
 end

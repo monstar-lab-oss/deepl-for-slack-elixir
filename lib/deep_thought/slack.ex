@@ -47,16 +47,18 @@ defmodule DeepThought.Slack do
       |> Enum.count() > 0
 
   @doc """
-  Creates a translation.
+  Marks a translation as deleted from the Slack thread.
+  """
+  @spec mark_as_deleted(String.t(), String.t()) :: Translation.r()
+  def mark_as_deleted(channel_id, message_ts) do
+    Translation.find_by_translation(channel_id, message_ts)
+    |> Repo.one!()
+    |> Translation.deletion_changeset(%{status: "deleted"})
+    |> Repo.update()
+  end
 
-  ## Examples
-
-      iex> create_translation(%{field: value})
-      {:ok, %Translation{}}
-
-      iex> create_translation(%{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
+  @doc """
+  Creates a translation request record in database.
   """
   @spec create_translation(map()) :: Translation.r()
   def create_translation(attrs \\ %{}) do

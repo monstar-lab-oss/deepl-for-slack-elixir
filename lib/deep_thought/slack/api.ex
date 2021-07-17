@@ -14,14 +14,15 @@ defmodule DeepThought.Slack.API do
   @doc """
   Query Slack API for permalink to a given message in a channel.
   """
-  @spec chat_get_permalink(String.t(), String.t()) ::
-          {:ok, String.t()} | {:error, non_neg_integer() | atom()}
+  @typep api_error :: {:error, atom() | non_neg_integer() | String.t()}
+  @spec chat_get_permalink(String.t(), String.t()) :: {:ok, String.t()} | api_error()
   def chat_get_permalink(channel_id, message_ts) do
     case get("/chat.getPermalink", query: [channel: channel_id, message_ts: message_ts]) do
       {:ok, response} ->
-        case response.status() do
-          200 -> {:ok, response.body()["permalink"]}
-          code -> {:error, code}
+        case {response.status(), response.body()["ok"]} do
+          {200, true} -> {:ok, response.body()["permalink"]}
+          {_, false} -> {:error, response.body()["error"]}
+          {code, _} -> {:error, code}
         end
 
       {:error, error} ->
@@ -30,13 +31,57 @@ defmodule DeepThought.Slack.API do
   end
 
   @doc """
-  Post a message in a Slack channel or, when supplied a valid `thread_ts`, in a discussion thread.
+  Ask Slack API to delete a message.
   """
-  @spec chat_post_message(Message.t()) :: :ok | {:error, atom()}
+  @spec chat_delete(String.t(), String.t()) :: :ok | api_error()
+  def chat_delete(channel_id, message_ts) do
+    case post("/chat.delete", %{channel: channel_id, ts: message_ts}) do
+      {:ok, response} ->
+        case {response.status(), response.body()["ok"]} do
+          {200, true} -> :ok
+          {_, false} -> {:error, response.body()["error"]}
+          {code, _} -> {:error, code}
+        end
+
+      error ->
+        error
+    end
+  end
+
+  @doc """
+  Post a Slack ephemeral message, which is visible only to a specific user.
+  """
+  @spec chat_post_ephemeral(Message.t()) :: :ok | api_error()
+  def chat_post_ephemeral(message) do
+    case post("/chat.postEphemeral", message) do
+      {:ok, response} ->
+        case {response.status(), response.body()["ok"]} do
+          {200, true} -> :ok
+          {_, false} -> {:error, response.body()["error"]}
+          {code, _} -> {:error, code}
+        end
+
+      error ->
+        error
+    end
+  end
+
+  @doc """
+  Post a message in a Slack channel or, when supplied a valid `thread_ts`, in a discussion thread. In case of success,
+  returns channel ID and message TS of the posted message.
+  """
+  @spec chat_post_message(Message.t()) :: {:ok, String.t(), String.t()} | api_error()
   def chat_post_message(message) do
     case post("/chat.postMessage", message) do
-      {:ok, _response} -> :ok
-      error -> error
+      {:ok, response} ->
+        case {response.status(), response.body()["ok"]} do
+          {200, true} -> {:ok, response.body()["channel"], response.body()["ts"]}
+          {_, false} -> {:error, response.body()["error"]}
+          {code, _} -> {:error, code}
+        end
+
+      error ->
+        error
     end
   end
 
@@ -44,16 +89,16 @@ defmodule DeepThought.Slack.API do
   Query Slack API to return a conversation history given a specified channel ID and timestamp, which are both obtained
   typically from an Events API event.
   """
-  @spec conversations_replies(String.t(), String.t(), boolean()) ::
-          {:ok, [map()]} | {:error, non_neg_integer() | atom()}
+  @spec conversations_replies(String.t(), String.t(), boolean()) :: {:ok, [map()]} | api_error()
   def conversations_replies(channel_id, message_ts, inclusive \\ true) do
     case get("/conversations.replies",
            query: [channel: channel_id, ts: message_ts, inclusive: inclusive]
          ) do
       {:ok, response} ->
-        case response.status() do
-          200 -> {:ok, response.body()["messages"]}
-          code -> {:error, code}
+        case {response.status(), response.body()["ok"]} do
+          {200, true} -> {:ok, response.body()["messages"]}
+          {_, false} -> {:error, response.body()["error"]}
+          {code, _} -> {:error, code}
         end
 
       error ->
@@ -64,13 +109,14 @@ defmodule DeepThought.Slack.API do
   @doc """
   Query Slack API to return user profile for a given user ID.
   """
-  @spec users_profile_get(String.t()) :: {:ok, map()} | {:error, non_neg_integer() | atom()}
+  @spec users_profile_get(String.t()) :: {:ok, map()} | api_error()
   def users_profile_get(user_id) do
     case get("/users.profile.get", query: [user: user_id]) do
       {:ok, response} ->
-        case response.status() do
-          200 -> {:ok, response.body()["profile"]}
-          code -> {:error, code}
+        case {response.status(), response.body()["ok"]} do
+          {200, true} -> {:ok, response.body()["profile"]}
+          {_, false} -> {:error, response.body()["error"]}
+          {code, _} -> {:error, code}
         end
 
       error ->

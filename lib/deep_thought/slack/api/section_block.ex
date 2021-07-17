@@ -5,12 +5,13 @@ defmodule DeepThought.Slack.API.SectionBlock do
 
   alias DeepThought.Slack.API.{SectionBlock, Text}
 
-  @derive {Jason.Encoder, only: [:type, :text]}
+  @derive {Jason.Encoder, only: [:type, :text, :accessory]}
   @type t :: %__MODULE__{
           type: String.t(),
-          text: Text.t() | nil
+          text: Text.t() | nil,
+          accessory: any() | nil
         }
-  defstruct type: "section", text: nil
+  defstruct type: "section", text: nil, accessory: nil
 
   @doc """
   Create a new empty Section Block.
@@ -23,4 +24,10 @@ defmodule DeepThought.Slack.API.SectionBlock do
   """
   @spec with_text(SectionBlock.t(), Text.t()) :: SectionBlock.t()
   def with_text(block, text), do: %SectionBlock{block | text: text}
+
+  @doc """
+  Add a Accessory element to a block.
+  """
+  @spec add_accessory(SectionBlock.t(), any()) :: SectionBlock.t()
+  def add_accessory(block, accessory), do: %SectionBlock{block | accessory: accessory}
 end

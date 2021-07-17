@@ -55,21 +55,21 @@ defmodule DeepThought.Slack.User do
   Changeset for upserting users based on data obtained from Slack API.
   """
   @spec changeset(User.t(), map()) :: Ecto.Changeset.t()
-  def changeset(user, attrs) do
-    user
-    |> cast(attrs, [
-      :user_id,
-      :email,
-      :real_name,
-      :real_name_normalized,
-      :display_name,
-      :display_name_normalized,
-      :last_name,
-      :first_name
-    ])
-    |> validate_required([:user_id])
-    |> unique_constraint([:user_id])
-  end
+  def changeset(user, attrs),
+    do:
+      user
+      |> cast(attrs, [
+        :user_id,
+        :email,
+        :real_name,
+        :real_name_normalized,
+        :display_name,
+        :display_name_normalized,
+        :last_name,
+        :first_name
+      ])
+      |> validate_required([:user_id])
+      |> unique_constraint([:user_id])
 
   @spec half_day_ago() :: NaiveDateTime.t()
   defp half_day_ago, do: NaiveDateTime.utc_now() |> NaiveDateTime.add(-12 * 60 * 60)
