@@ -14,7 +14,7 @@ defmodule DeepThought.Slack.API do
   @doc """
   Query Slack API for permalink to a given message in a channel.
   """
-  @typep api_error :: {:error, atom() | non_neg_integer() | String.t()}
+  @type api_error :: {:error, atom() | non_neg_integer() | String.t()}
   @spec chat_get_permalink(String.t(), String.t()) :: {:ok, String.t()} | api_error()
   def chat_get_permalink(channel_id, message_ts) do
     case get("/chat.getPermalink", query: [channel: channel_id, message_ts: message_ts]) do

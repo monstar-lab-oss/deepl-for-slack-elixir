@@ -31,6 +31,7 @@ defmodule DeepThoughtWeb.Router do
     pipe_through [:api, :slack_api]
 
     post "/actions", ActionController, :process
+    post "/commands", CommandController, :process
     post "/events", EventController, :process
   end
 
