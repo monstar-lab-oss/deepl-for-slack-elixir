@@ -1,7 +1,8 @@
 defmodule DeepThought.EventSupervisor do
   @moduledoc """
-  Module invoked from `DeepThought.EventController` responsible for dispatching the received event into an appropriate
-  event handler function. In case the event handler dies, a certain number of restarts is attempted before giving up.
+  Module invoked from `DeepThoughtWeb.EventController` responsible for dispatching the received event into an
+  appropriate event handler function. In case the event handler dies, a certain number of restarts is attempted before
+  giving up.
   """
 
   @opts [restart: :transient]

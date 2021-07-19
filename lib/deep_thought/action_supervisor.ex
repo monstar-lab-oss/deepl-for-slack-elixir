@@ -1,7 +1,7 @@
 defmodule DeepThought.ActionSupervisor do
   @moduledoc """
-  Module invoked from `DeepThought.ActionController` responsible for handling user interactions through Slack actions,
-  such as clicking on button in an overflow menu or issuing a Slack command.
+  Module invoked from `DeepThoughtWeb.ActionController` responsible for handling user interactions through Slack
+  actions, such as clicking on button in an overflow menu or issuing a Slack command.
   """
 
   @opts [restart: :transient]
@@ -22,4 +22,6 @@ defmodule DeepThought.ActionSupervisor do
           [action, context],
           @opts
         )
+
+  def process(_action, _context), do: nil
 end
