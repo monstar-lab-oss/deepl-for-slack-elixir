@@ -76,3 +76,23 @@ jobs:
 
       - name: Run Dialyzer
         run: mix dialyzer
+
+  deploy:
+    if: github.ref == 'refs/heads/master'
+    name: Deploy
+    needs: [test]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Deploy to Lightsail
+        uses: dokku/github-action@v1.0.2
+        with:
+          git_push_flags: --force
+          git_remote_url: ${{ secrets.GIT_REMOTE_URL }}
+          ssh_host_key: ${{ secrets.SSH_HOST_KEY }}
+          ssh_private_key: ${{ secrets.SSH_PRIVATE_KEY }}
