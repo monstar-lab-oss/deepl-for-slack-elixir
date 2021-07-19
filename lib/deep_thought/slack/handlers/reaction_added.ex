@@ -108,7 +108,14 @@ defmodule DeepThought.Slack.Handler.ReactionAdded do
   defp footer_block(channel_id, message),
     do:
       ContextBlock.new()
-      |> ContextBlock.with_text(Text.new(generate_permalink(channel_id, message)))
+      |> ContextBlock.with_text(
+        Text.new(
+          generate_permalink(channel_id, message)
+          |> append_feedback_channel(
+            Application.get_env(:deep_thought, :slack)[:feedback_channel]
+          )
+        )
+      )
 
   @spec generate_permalink(String.t(), map()) :: String.t()
   defp generate_permalink(channel_id, %{"ts" => message_ts}) do
@@ -117,4 +124,10 @@ defmodule DeepThought.Slack.Handler.ReactionAdded do
       _ -> "⚠️ Could not find original message"
     end
   end
+
+  @spec append_feedback_channel(String.t(), String.t() | nil) :: String.t()
+  defp append_feedback_channel(text, feedback_channel) when feedback_channel == nil, do: text
+
+  defp append_feedback_channel(text, feedback_channel),
+    do: text <> "| Share your feedback in <#" <> feedback_channel <> ">!"
 end
