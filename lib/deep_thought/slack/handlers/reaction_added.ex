@@ -129,5 +129,5 @@ defmodule DeepThought.Slack.Handler.ReactionAdded do
   defp append_feedback_channel(text, feedback_channel) when feedback_channel == nil, do: text
 
   defp append_feedback_channel(text, feedback_channel),
-    do: text <> "| Share your feedback in <#" <> feedback_channel <> ">!"
+    do: text <> " | Share your feedback in <#" <> feedback_channel <> ">!"
 end

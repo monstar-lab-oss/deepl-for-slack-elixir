@@ -78,7 +78,7 @@ jobs:
         run: mix dialyzer
 
   deploy:
-    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/full-rewrite'
+    if: github.ref == 'refs/heads/master'
     name: Deploy
     needs: [test]
     runs-on: ubuntu-latest

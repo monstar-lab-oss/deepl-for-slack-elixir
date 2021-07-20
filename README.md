@@ -45,7 +45,7 @@ To deploy _Deep Thought_, you first need to create a Slack application, then con
        always_online: true
      slash_commands:
        - command: /translate
-         url: https://YOUR.DOMAIN.HERE/slack/commands/translate
+         url: https://YOUR.DOMAIN.HERE/slack/commands
          description:
            Translate your message, sending both the translation and original
            text to the channel
