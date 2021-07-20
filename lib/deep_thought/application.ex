@@ -17,11 +17,9 @@ defmodule DeepThought.Application do
       DeepThoughtWeb.Endpoint,
       # Start a worker by calling: DeepThought.Worker.start_link(arg)
       # {DeepThought.Worker, arg}
-      {Task.Supervisor,
-       name: DeepThought.TranslatorSupervisor,
-       restart: :transient,
-       max_restarts: 3,
-       max_seconds: 15}
+      {Task.Supervisor, name: DeepThought.ActionSupervisor, max_restarts: 3, max_seconds: 60},
+      {Task.Supervisor, name: DeepThought.CommandSupervisor, max_restarts: 3, max_seconds: 60},
+      {Task.Supervisor, name: DeepThought.EventSupervisor, max_restarts: 3, max_seconds: 60}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

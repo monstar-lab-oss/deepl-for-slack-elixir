@@ -8,7 +8,7 @@ defmodule DeepThoughtWeb.Endpoint do
   @session_options [
     store: :cookie,
     key: "_deep_thought_key",
-    signing_salt: "7OL933Nk"
+    signing_salt: "QtGtUIry"
   ]
 
   socket "/socket", DeepThoughtWeb.UserSocket,

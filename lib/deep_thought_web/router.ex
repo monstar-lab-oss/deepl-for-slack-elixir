@@ -2,37 +2,37 @@ defmodule DeepThoughtWeb.Router do
   use DeepThoughtWeb, :router
 
   pipeline :browser do
-    plug(:accepts, ["html"])
-    plug(:fetch_session)
-    plug(:fetch_live_flash)
-    plug(:put_root_layout, {DeepThoughtWeb.LayoutView, :root})
-    plug(:protect_from_forgery)
-    plug(:put_secure_browser_headers)
+    plug :accepts, ["html"]
+    plug :fetch_session
+    plug :fetch_live_flash
+    plug :put_root_layout, {DeepThoughtWeb.LayoutView, :root}
+    plug :protect_from_forgery
+    plug :put_secure_browser_headers
   end
 
   pipeline :api do
-    plug(:accepts, ["json"])
+    plug :accepts, ["json"]
   end
 
   pipeline :slack_api do
-    plug(
-      DeepThoughtWeb.Plugs.SignatureVerifier,
-      Application.get_env(:deep_thought, :slack)[:signing_secret]
-    )
-  end
-
-  scope "/slack", DeepThoughtWeb do
-    pipe_through([:api, :slack_api])
-
-    post("/actions", ActionController, :create)
-    post("/commands/translate", TranslateController, :create)
-    post("/events", EventController, :create)
+    unless Mix.env() == :test do
+      plug DeepThoughtWeb.Plugs.VerifySignature,
+           Application.get_env(:deep_thought, :slack)[:signing_secret]
+    end
   end
 
   scope "/", DeepThoughtWeb do
-    pipe_through(:browser)
+    pipe_through :browser
 
-    live("/", PageLive, :index)
+    live "/", PageLive, :index
+  end
+
+  scope "/slack", DeepThoughtWeb do
+    pipe_through [:api, :slack_api]
+
+    post "/actions", ActionController, :process
+    post "/commands", CommandController, :process
+    post "/events", EventController, :process
   end
 
   # Other scopes may use custom stacks.
@@ -51,8 +51,8 @@ defmodule DeepThoughtWeb.Router do
     import Phoenix.LiveDashboard.Router
 
     scope "/" do
-      pipe_through(:browser)
-      live_dashboard("/dashboard", metrics: DeepThoughtWeb.Telemetry)
+      pipe_through :browser
+      live_dashboard "/dashboard", metrics: DeepThoughtWeb.Telemetry
     end
   end
 end

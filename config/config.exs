@@ -13,10 +13,10 @@ config :deep_thought,
 # Configures the endpoint
 config :deep_thought, DeepThoughtWeb.Endpoint,
   url: [host: "localhost"],
-  secret_key_base: "02c5zaZSAEWFRKzGQI3woV+givqta4RT6oif5uWeX00saQNkdUcj/vLJJDdcwjQr",
+  secret_key_base: "6a4n+/AnbDyHlOT1rYbUNdVa85/S9Egb4k55q/a54JKBihccTJDb9DHHxGUGv2LC",
   render_errors: [view: DeepThoughtWeb.ErrorView, accepts: ~w(html json), layout: false],
   pubsub_server: DeepThought.PubSub,
-  live_view: [signing_salt: "lVgWDZGI"]
+  live_view: [signing_salt: "yBzcq+Em"]
 
 # Configures Elixir's Logger
 config :logger, :console,
@@ -31,4 +31,3 @@ config :tesla, adapter: Tesla.Adapter.Hackney
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{Mix.env()}.exs"
-import_config "config.secret.exs"

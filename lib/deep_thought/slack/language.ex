@@ -1,16 +1,32 @@
-defmodule DeepThought.Slack.LanguageConverter do
-  def reaction_to_lang("flag-" <> reaction), do: get_reaction_to_lang(reaction)
-  def reaction_to_lang(reaction), do: get_reaction_to_lang(reaction)
+defmodule DeepThought.Slack.Language do
+  @moduledoc """
+  Module that allows for converstion between country codes (used by Slack flag emojis) and language codes (used by DeepL
+  translation engine).
+  """
 
-  defp get_reaction_to_lang(reaction) do
-    case Map.has_key?(mapping(), reaction) do
-      true -> {:ok, Map.get(mapping(), reaction) |> String.upcase()}
-      _ -> :error
+  @type t() :: %__MODULE__{slack_code: String.t(), deepl_code: String.t()}
+  defstruct slack_code: "", deepl_code: ""
+
+  alias DeepThought.Slack.Language
+
+  @doc """
+  Given a country code as a `String`, attempt conversion to a language code.
+  """
+  @spec new(String.t()) :: {:ok, Language.t()} | {:error, :unknown_language}
+  def new("flag-" <> reaction), do: do_new(reaction)
+  def new(reaction), do: do_new(reaction)
+
+  @spec do_new(String.t()) :: {:ok, Language.t()} | {:error, :unknown_language}
+  defp do_new(reaction) do
+    case Map.get(mapping(), reaction) do
+      nil -> {:error, :unknown_language}
+      value -> {:ok, %Language{slack_code: reaction, deepl_code: String.upcase(value)}}
     end
   end
 
-  defp mapping do
-    %{
+  @spec mapping() :: %{String.t() => String.t()}
+  defp mapping,
+    do: %{
       "bg" => "bg",
       "cz" => "cs",
       "dk" => "da",
@@ -166,5 +182,4 @@ defmodule DeepThought.Slack.LanguageConverter do
       "se" => "sv",
       "cn" => "zh"
     }
-  end
 end

@@ -5,90 +5,65 @@ defmodule DeepThought.Slack do
 
   import Ecto.Query, warn: false
   alias DeepThought.Repo
-
-  alias DeepThought.Slack.{Event, User}
-
-  @doc """
-  Returns the list of events.
-
-  ## Examples
-
-      iex> list_events()
-      [%Event{}, ...]
-
-  """
-  def list_events do
-    Repo.all(Event)
-  end
+  alias DeepThought.Slack.{Translation, User}
 
   @doc """
-  Gets a single event.
-
-  Raises `Ecto.NoResultsError` if the Event does not exist.
-
-  ## Examples
-
-      iex> get_event!(123)
-      %Event{}
-
-      iex> get_event!(456)
-      ** (Ecto.NoResultsError)
-
+  Find users by user_ids.
   """
-  def get_event!(id), do: Repo.get!(Event, id)
-
-  def recently_translated?(channel_id, message_ts, target_language) do
-    count =
-      Event.recently_translated(channel_id, message_ts, target_language)
-      |> Ecto.Query.select([q], count(q.id))
-      |> Repo.one()
-
-    count > 0
-  end
-
-  @doc """
-  Creates a event.
-
-  ## Examples
-
-      iex> create_event(%{field: value})
-      {:ok, %Event{}}
-
-      iex> create_event(%{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def create_event(%{"type" => "url_verification"} = attrs) do
-    %Event{}
-    |> Event.url_verification_changeset(attrs)
-    |> Repo.insert()
-  end
-
-  def create_event(%{"type" => "reaction_added"} = attrs) do
-    %Event{}
-    |> Event.reaction_added_changeset(attrs)
-    |> Repo.insert()
-  end
-
-  def find_users(user_ids) do
-    User.with_user_ids(user_ids)
+  @spec find_users_by_user_ids([String.t()]) :: [User.t()]
+  def find_users_by_user_ids(user_ids) do
+    User.find_by_user_ids(user_ids)
     |> Repo.all()
   end
 
-  def upsert_users(data) do
-    now = NaiveDateTime.utc_now() |> NaiveDateTime.truncate(:second)
+  @doc """
+  Inserts or updates user information in database.
+  """
+  @spec update_users!([map()]) :: [User.t()]
+  def update_users!(users) do
+    users
+    |> Stream.map(fn user -> User.changeset(%User{}, user) end)
+    |> Enum.reduce([], fn changeset, acc ->
+      [
+        Repo.insert!(changeset,
+          returning: true,
+          conflict_target: :user_id,
+          on_conflict: {:replace_all_except, [:id, :user_id]}
+        )
+        | acc
+      ]
+    end)
+    |> Enum.reverse()
+  end
 
-    data =
-      data
-      |> Enum.map(fn row ->
-        row
-        |> Map.put(:inserted_at, now)
-        |> Map.put(:updated_at, now)
-      end)
+  @doc """
+  Determines whether message was recently translated into a given language.
+  """
+  @spec recently_translated?(String.t(), String.t(), String.t()) :: boolean()
+  def recently_translated?(channel_id, message_ts, target_language),
+    do:
+      Translation.recently_translated?(channel_id, message_ts, target_language)
+      |> Repo.all()
+      |> Enum.count() > 0
 
-    Repo.insert_all(User, data,
-      conflict_target: [:user_id],
-      on_conflict: {:replace, [:real_name, :updated_at]}
-    )
+  @doc """
+  Marks a translation as deleted from the Slack thread.
+  """
+  @spec mark_as_deleted(String.t(), String.t()) :: Translation.r()
+  def mark_as_deleted(channel_id, message_ts) do
+    Translation.find_by_translation(channel_id, message_ts)
+    |> Repo.one!()
+    |> Translation.deletion_changeset(%{status: "deleted"})
+    |> Repo.update()
+  end
+
+  @doc """
+  Creates a translation request record in database.
+  """
+  @spec create_translation(map()) :: Translation.r()
+  def create_translation(attrs \\ %{}) do
+    %Translation{}
+    |> Translation.changeset(attrs)
+    |> Repo.insert()
   end
 end

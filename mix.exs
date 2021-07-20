@@ -10,7 +10,15 @@ defmodule DeepThought.MixProject do
       compilers: [:phoenix, :gettext] ++ Mix.compilers(),
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
-      deps: deps()
+      deps: deps(),
+      dialyzer: dialyzer(),
+      test_coverage: [tool: ExCoveralls],
+      preferred_cli_env: [
+        coveralls: :test,
+        "coveralls.detail": :test,
+        "coveralls.post": :test,
+        "coveralls.html": :test
+      ]
     ]
   end
 
@@ -47,9 +55,14 @@ defmodule DeepThought.MixProject do
       {:gettext, "~> 0.11"},
       {:jason, "~> 1.0"},
       {:plug_cowboy, "~> 2.0"},
+      {:credo, "~> 1.5", only: :dev, runtime: false},
+      {:dialyxir, "~> 1.1", only: :dev, runtime: false},
+      {:ex_doc, "~> 0.24", only: :dev, runtime: false},
+      {:doctor, "~> 0.18.0", only: :dev, runtime: false},
+      {:excoveralls, "~> 0.14", only: :test, runtime: false},
+      {:appsignal_phoenix, "~> 2.0"},
       {:tesla, "~> 1.4"},
-      {:hackney, "~> 1.17"},
-      {:appsignal_phoenix, "~> 2.0"}
+      {:hackney, "~> 1.17"}
     ]
   end
 
@@ -66,5 +79,9 @@ defmodule DeepThought.MixProject do
       "ecto.reset": ["ecto.drop", "ecto.setup"],
       test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"]
     ]
+  end
+
+  defp dialyzer do
+    [plt_file: {:no_warn, "priv/plts/deep_thought.plt"}]
   end
 end
