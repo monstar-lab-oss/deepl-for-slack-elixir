@@ -78,21 +78,10 @@ defmodule DeepThought.Slack.Handler.ReactionAdded do
       |> Message.in_thread(extract_thread_ts(message))
       |> Message.unescape()
 
-    Message.add_block(
-      reply,
-      translation_block(reply.text)
-      |> SectionBlock.add_accessory(delete_button())
-    )
+    Message.add_block(reply, translation_block(reply.text))
     |> Message.add_block(footer_block(channel_id, message))
     |> Slack.API.chat_post_message()
   end
-
-  @spec delete_button() :: OverflowAccessory.t()
-  defp delete_button,
-    do:
-      Text.new("Delete translation", "plain_text")
-      |> Option.new("delete")
-      |> OverflowAccessory.new(Confirm.default(), "delete_overflow")
 
   @spec extract_thread_ts(map()) :: String.t()
   defp extract_thread_ts(%{"thread_ts" => thread_ts}), do: thread_ts
@@ -103,6 +92,14 @@ defmodule DeepThought.Slack.Handler.ReactionAdded do
     do:
       SectionBlock.new()
       |> SectionBlock.with_text(Text.new(translation))
+      |> SectionBlock.add_accessory(delete_button())
+
+  @spec delete_button() :: OverflowAccessory.t()
+  defp delete_button,
+    do:
+      Text.new("Delete translation", "plain_text")
+      |> Option.new("delete")
+      |> OverflowAccessory.new(Confirm.default(), "delete_overflow")
 
   @spec footer_block(String.t(), map()) :: ContextBlock.t()
   defp footer_block(channel_id, message),

@@ -51,11 +51,11 @@ defmodule DeepThought.Slack.API.Message do
   def unescape(message),
     do:
       message
-      |> unescape_emojis
-      |> unescape_channels
-      |> unescape_links
-      |> unescape_usernames
-      |> unescape_code
+      |> unescape_emojis()
+      |> unescape_channels()
+      |> unescape_links()
+      |> unescape_usernames()
+      |> unescape_code()
 
   @spec unescape_emojis(Message.t()) :: Message.t()
   defp unescape_emojis(%{text: text} = message),
