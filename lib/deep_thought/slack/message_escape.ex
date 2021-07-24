@@ -12,12 +12,12 @@ defmodule DeepThought.Slack.MessageEscape do
   def escape(text),
     do:
       text
-      |> remove_global_mentions
-      |> escape_emojis
-      |> escape_usernames
-      |> escape_channels
-      |> escape_links
-      |> escape_code
+      |> remove_global_mentions()
+      |> escape_emojis()
+      |> escape_usernames()
+      |> escape_channels()
+      |> escape_links()
+      |> escape_code()
 
   @spec remove_global_mentions(String.t()) :: String.t()
   defp remove_global_mentions(text),
