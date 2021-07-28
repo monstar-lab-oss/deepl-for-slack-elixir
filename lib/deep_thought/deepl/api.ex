@@ -13,6 +13,7 @@ defmodule DeepThought.DeepL.API do
   plug Tesla.Middleware.EncodeFormUrlencoded
   plug Tesla.Middleware.DecodeJson
   plug Tesla.Middleware.Logger
+  plug Tesla.Middleware.Timeout, timeout: 10_000
 
   @doc """
   Invoke DeepL’s translation API, converting `text` into a translation in `target_language`.

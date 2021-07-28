@@ -3,7 +3,7 @@ defmodule DeepThought.Slack.APITest do
   Module used to test the interaction with the Slack API.
   """
 
-  use DeepThought.MockCase, async: true
+  use DeepThought.MockCase, async: false
   alias DeepThought.Slack.API.Message
 
   test "chat_post_message/3 can post a message" do
