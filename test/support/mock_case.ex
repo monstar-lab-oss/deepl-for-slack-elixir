@@ -13,8 +13,8 @@ defmodule DeepThought.MockCase do
     end
   end
 
-  setup do
-    Tesla.Mock.mock(fn
+  setup_all do
+    Tesla.Mock.mock_global(fn
       %{url: "https://api.deepl.com/" <> _rest} -> setup_deepl()
       %{url: "https://slack.com/api" <> method} = env -> setup_slack(env, method)
     end)
