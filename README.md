@@ -9,6 +9,8 @@ There are two main ways of interacting with the bot and receiving translations:
 1. Most users choose to request and receive translations by reacting to a message they wish to see translated with an flag emoji, as described above;
 2. For sending a quick translation into public channel or private channel the bot was previously invited to, you can also utilize the recently added `/translate [language shorthand/flag emoji] [text]` Slack command.
 
+In order to translate messages in private channels, the bot must first be a member of this channel. You can invite the bot by running the `/invite @Deep Thought` command.
+
 ## Prerequisites
 
 To run the bot, you must fullfil the following requirements:
@@ -180,3 +182,7 @@ In order for _Deep Thought_ to operate correctly, the following Slack OAuth perm
   - Required in order to be notified when emoji reaction has been added to a message
 - `users.profile:read`
   - Required in order to translate machine-readable user ID’s into user’s real name
+
+## Related projects
+
+This project would not exist at all if it wasn’t for the original project, Sera-san’s [DeepL for Slack](https://github.com/seratch/deepl-for-slack), which served as a great source of inspiration for _Deep Thought_. Thank you!
