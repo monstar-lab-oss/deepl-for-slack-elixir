@@ -26,4 +26,9 @@ defmodule DeepThought.Slack.LanguageTest do
       assert {:error, :unknown_language} == Language.new(reaction)
     end)
   end
+
+  test "new/1 works with edge cases" do
+    assert {:error, :unknown_language} = Language.new("ng")
+    assert {:ok, %Language{deepl_code: "EN-US"}} = Language.new("flag-ng")
+  end
 end
