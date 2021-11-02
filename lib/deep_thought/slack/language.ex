@@ -11,9 +11,12 @@ defmodule DeepThought.Slack.Language do
 
   @doc """
   Given a country code as a `String`, attempt conversion to a language code.
+  Black-lists the short-hand version of Nigeria (`ng`) due to the existence of a
+  stand-alone :ng: emoji (🆖).
   """
   @spec new(String.t()) :: {:ok, Language.t()} | {:error, :unknown_language}
   def new("flag-" <> reaction), do: do_new(reaction)
+  def new("ng"), do: {:error, :unknown_language}
   def new(reaction), do: do_new(reaction)
 
   @spec do_new(String.t()) :: {:ok, Language.t()} | {:error, :unknown_language}
