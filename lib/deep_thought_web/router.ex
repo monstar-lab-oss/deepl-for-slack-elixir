@@ -16,8 +16,7 @@ defmodule DeepThoughtWeb.Router do
 
   pipeline :slack_api do
     unless Mix.env() == :test do
-      plug DeepThoughtWeb.Plugs.VerifySignature,
-           Application.get_env(:deep_thought, :slack)[:signing_secret]
+      plug DeepThoughtWeb.Plugs.VerifySignature
     end
   end
 
