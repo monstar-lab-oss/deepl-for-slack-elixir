@@ -28,3 +28,19 @@ config :deep_thought, :deepl, auth_key: "auth_key"
 config :deep_thought, :slack,
   bot_token: "bot_token",
   signing_secret: "signing_secret"
+
+# Secret variables with dummy values
+deepl_auth_key = "auth_key"
+
+config :deep_thought, :deepl, auth_key: deepl_auth_key
+
+slack_bot_token = "bot_token"
+
+slack_signing_secret = "signing_secret"
+
+slack_feedback_channel = System.get_env("SLACK_FEEDBACK_CHANNEL")
+
+config :deep_thought, :slack,
+  bot_token: slack_bot_token,
+  feedback_channel: slack_feedback_channel,
+  signing_secret: slack_signing_secret
