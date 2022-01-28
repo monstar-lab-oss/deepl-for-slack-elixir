@@ -19,10 +19,6 @@ defmodule DeepThoughtWeb.Plugs.VerifySignatureTest do
        |> put_req_header("x-slack-request-timestamp", "1625202589")}
   end
 
-  test "init/1 stores the signing secret" do
-    assert "secret" == VerifySignature.init("secret")
-  end
-
   test "request with valid signature is not halted", %{conn: conn} do
     conn =
       conn
@@ -30,7 +26,7 @@ defmodule DeepThoughtWeb.Plugs.VerifySignatureTest do
         "x-slack-signature",
         "v0=27ab08e51bb55b93f4cb2c749193ed0ea90986020a8fe2f0aa3972d480b9a715"
       )
-      |> VerifySignature.call("secret")
+      |> VerifySignature.call(nil)
 
     refute conn.halted
   end
@@ -39,14 +35,14 @@ defmodule DeepThoughtWeb.Plugs.VerifySignatureTest do
     conn =
       conn
       |> put_req_header("x-slack-signature", "invalid")
-      |> VerifySignature.call("secret")
+      |> VerifySignature.call(nil)
 
     assert conn.status == 401
     assert conn.halted
   end
 
   test "request with a missing signature is halted", %{conn: conn} do
-    conn = VerifySignature.call(conn, "secret")
+    conn = VerifySignature.call(conn, nil)
 
     assert conn.status == 401
     assert conn.halted

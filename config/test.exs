@@ -36,7 +36,8 @@ config :deep_thought, :deepl, auth_key: deepl_auth_key
 
 slack_bot_token = "bot_token"
 
-slack_signing_secret = "signing_secret"
+# this value is used in test cases
+slack_signing_secret = "secret"
 
 slack_feedback_channel = System.get_env("SLACK_FEEDBACK_CHANNEL")
 
