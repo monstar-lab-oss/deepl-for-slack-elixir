@@ -23,8 +23,6 @@ RUN mix deps.get
 RUN cd assets && npm install && npm run deploy
 RUN mix phx.digest
 RUN mix do compile, release
-
-
 # Prepare release image
 FROM alpine:3.15.0 AS app
 ARG MIX_ENV=prod
