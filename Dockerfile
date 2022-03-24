@@ -1,4 +1,4 @@
-FROM elixir:1.12.2-alpine AS build
+FROM elixir:1.13.3-alpine AS build
 
 # Env
 ENV MIX_ENV=prod
@@ -23,10 +23,11 @@ RUN mix deps.get
 RUN cd assets && npm install && npm run deploy
 RUN mix phx.digest
 RUN mix do compile, release
+
 # Prepare release image
 FROM alpine:3.15.0 AS app
-ARG MIX_ENV=prod
 
+ARG MIX_ENV=prod
 RUN apk add --no-cache libstdc++ openssl ncurses-libs
 
 WORKDIR /app
