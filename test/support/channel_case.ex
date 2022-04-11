@@ -16,7 +16,6 @@ defmodule DeepThoughtWeb.ChannelCase do
   """
 
   use ExUnit.CaseTemplate
-  alias Ecto.Adapters.SQL
 
   using do
     quote do
@@ -30,12 +29,8 @@ defmodule DeepThoughtWeb.ChannelCase do
   end
 
   setup tags do
-    :ok = SQL.Sandbox.checkout(DeepThought.Repo)
-
-    unless tags[:async] do
-      SQL.Sandbox.mode(DeepThought.Repo, {:shared, self()})
-    end
-
+    pid = Ecto.Adapters.SQL.Sandbox.start_owner!(DeepThought.Repo, shared: not tags[:async])
+    on_exit(fn -> Ecto.Adapters.SQL.Sandbox.stop_owner(pid) end)
     :ok
   end
 end

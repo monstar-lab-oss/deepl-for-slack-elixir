@@ -9,12 +9,15 @@ defmodule DeepThought.Slack.Language do
 
   alias DeepThought.Slack.Language
 
+  @blacklisted_emoji ~w(ne ng)
+
   @doc """
   Given a country code as a `String`, attempt conversion to a language code.
   """
   @spec new(String.t()) :: {:ok, Language.t()} | {:error, :unknown_language}
   def new("flag-" <> reaction), do: do_new(reaction)
-  def new(_reaction), do: {:error, :unknown_language}
+  def new(reaction) when reaction in @blacklisted_emoji, do: {:error, :unknown_language}
+  def new(reaction), do: do_new(reaction)
 
   @spec do_new(String.t()) :: {:ok, Language.t()} | {:error, :unknown_language}
   defp do_new(reaction) do

@@ -1,4 +1,4 @@
-use Mix.Config
+import Config
 
 # Configure your database
 #
@@ -8,26 +8,28 @@ use Mix.Config
 config :deep_thought, DeepThought.Repo,
   username: "postgres",
   password: "postgres",
-  database: "deep_thought_test#{System.get_env("MIX_TEST_PARTITION")}",
   hostname: "localhost",
-  pool: Ecto.Adapters.SQL.Sandbox
+  database: "deep_thought_test#{System.get_env("MIX_TEST_PARTITION")}",
+  pool: Ecto.Adapters.SQL.Sandbox,
+  pool_size: 10
 
 # We don't run a server during test. If one is required,
 # you can enable the server option below.
 config :deep_thought, DeepThoughtWeb.Endpoint,
-  http: [port: 4002],
+  http: [ip: {127, 0, 0, 1}, port: 4002],
+  secret_key_base: "vpWffOaFjuR7Ctrxxplc2Kfq7UIcFhZ8hbiXpbOKYTz6vEaz0TlhH2u3u020ozLu",
   server: false
+
+config :tesla, adapter: Tesla.Mock
+
+# In test we don't send emails.
+config :deep_thought, DeepThought.Mailer, adapter: Swoosh.Adapters.Test
 
 # Print only warnings and errors during test
 config :logger, level: :warn
 
-config :tesla, adapter: Tesla.Mock
-
-config :deep_thought, :deepl, auth_key: "auth_key"
-
-config :deep_thought, :slack,
-  bot_token: "bot_token",
-  signing_secret: "signing_secret"
+# Initialize plugs at runtime for faster test compilation
+config :phoenix, :plug_init_mode, :runtime
 
 # Secret variables with dummy values
 deepl_auth_key = "auth_key"
