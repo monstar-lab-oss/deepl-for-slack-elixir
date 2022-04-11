@@ -1,6 +1,6 @@
 # Pull Request (PR) Checklist
 - [ ] Include document link if any.
-- [ ] Followed existing code guidlines.
+- [ ] Followed existing code guidelines.
 
 # Details
 ## What
@@ -11,7 +11,7 @@
 
 ## Screen shot if applicable
 
-## Logs if usefull to review
+## Logs if useful to review
 
 
 ## Related to other PRs
