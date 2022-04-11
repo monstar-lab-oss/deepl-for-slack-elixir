@@ -1,6 +1,5 @@
 defmodule DeepThoughtWeb.Endpoint do
   use Phoenix.Endpoint, otp_app: :deep_thought
-  use Appsignal.Phoenix
 
   # The session will be stored in the cookie and signed,
   # this means its contents can be read but not tampered with.
@@ -8,12 +7,8 @@ defmodule DeepThoughtWeb.Endpoint do
   @session_options [
     store: :cookie,
     key: "_deep_thought_key",
-    signing_salt: "QtGtUIry"
+    signing_salt: "qott7vzc"
   ]
-
-  socket "/socket", DeepThoughtWeb.UserSocket,
-    websocket: true,
-    longpoll: false
 
   socket "/live", Phoenix.LiveView.Socket, websocket: [connect_info: [session: @session_options]]
 
@@ -25,7 +20,7 @@ defmodule DeepThoughtWeb.Endpoint do
     at: "/",
     from: :deep_thought,
     gzip: false,
-    only: ~w(css fonts images js favicon.ico robots.txt)
+    only: ~w(assets fonts images favicon.ico robots.txt)
 
   # Code reloading can be explicitly enabled under the
   # :code_reloader configuration of your endpoint.

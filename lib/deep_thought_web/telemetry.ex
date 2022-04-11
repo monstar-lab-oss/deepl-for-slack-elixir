@@ -1,6 +1,4 @@
 defmodule DeepThoughtWeb.Telemetry do
-  @moduledoc false
-
   use Supervisor
   import Telemetry.Metrics
 
@@ -33,11 +31,27 @@ defmodule DeepThoughtWeb.Telemetry do
       ),
 
       # Database Metrics
-      summary("deep_thought.repo.query.total_time", unit: {:native, :millisecond}),
-      summary("deep_thought.repo.query.decode_time", unit: {:native, :millisecond}),
-      summary("deep_thought.repo.query.query_time", unit: {:native, :millisecond}),
-      summary("deep_thought.repo.query.queue_time", unit: {:native, :millisecond}),
-      summary("deep_thought.repo.query.idle_time", unit: {:native, :millisecond}),
+      summary("deep_thought.repo.query.total_time",
+        unit: {:native, :millisecond},
+        description: "The sum of the other measurements"
+      ),
+      summary("deep_thought.repo.query.decode_time",
+        unit: {:native, :millisecond},
+        description: "The time spent decoding the data received from the database"
+      ),
+      summary("deep_thought.repo.query.query_time",
+        unit: {:native, :millisecond},
+        description: "The time spent executing the query"
+      ),
+      summary("deep_thought.repo.query.queue_time",
+        unit: {:native, :millisecond},
+        description: "The time spent waiting for a database connection"
+      ),
+      summary("deep_thought.repo.query.idle_time",
+        unit: {:native, :millisecond},
+        description:
+          "The time the connection spent waiting before being checked out for the query"
+      ),
 
       # VM Metrics
       summary("vm.memory.total", unit: {:byte, :kilobyte}),
