@@ -3,17 +3,18 @@
 - [ ] Followed existing code guidelines.
 
 # Details
-## What
-
+## What 
+-
 ## Why
-
+-
 ## Outcome
-
+-
 ## Screen shot if applicable
-
+-
 ## Logs if useful to review
-
+-
 
 ## Related to other PRs
-
+-
 ## Special Notes for PR reviewers
+-
