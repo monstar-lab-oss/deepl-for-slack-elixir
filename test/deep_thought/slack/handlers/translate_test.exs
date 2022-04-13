@@ -27,7 +27,7 @@ defmodule DeepThought.Slack.Handler.TranslateTest do
   end
 
   test "translate/1 returns translation on success" do
-    command = Map.put(@command, "text", ":flag-cz: Hello world!")
+    command = Map.put(@command, "text", ":cz: Hello world!")
 
     assert {:ok, message} = Translate.translate(command)
     assert message =~ "Hello world!"

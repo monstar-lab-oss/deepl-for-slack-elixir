@@ -10,9 +10,7 @@ RUN apk --no-cache --update add \
       g++ \
       wget \
       curl \
-      inotify-tools \
-      nodejs \
-      npm
+      inotify-tools
 
 # Prepare App
 COPY ./ /app
@@ -20,8 +18,7 @@ WORKDIR /app
 RUN mix local.hex --force
 RUN mix local.rebar --force
 RUN mix deps.get
-RUN cd assets && npm install && npm run deploy
-RUN mix phx.digest
+RUN mix assets.deploy
 RUN mix do compile, release
 
 # Prepare release image
