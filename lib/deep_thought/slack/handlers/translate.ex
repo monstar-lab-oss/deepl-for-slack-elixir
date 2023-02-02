@@ -41,6 +41,10 @@ defmodule DeepThought.Slack.Handler.Translate do
     end
   end
 
+  @doc """
+  Sends a simple translation (issued via the `/translate` command) into the channel
+  along with the original text.
+  """
   @spec say_in_channel(String.t(), String.t(), String.t(), String.t()) ::
           {:ok, String.t()} | Slack.API.api_error()
   def say_in_channel(channel_id, username, original_text, translation) do

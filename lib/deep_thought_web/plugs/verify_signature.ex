@@ -7,6 +7,9 @@ defmodule DeepThoughtWeb.Plugs.VerifySignature do
   import DeepThoughtWeb.CacheBodyReader
   import Plug.Conn
 
+  @doc """
+  Initialize the plug with given options, although they’re not used in the plug call itself.
+  """
   @spec init(Plug.opts()) :: Plug.opts()
   def init(opts), do: opts
 

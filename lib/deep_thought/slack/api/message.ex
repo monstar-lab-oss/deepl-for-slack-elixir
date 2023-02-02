@@ -81,6 +81,10 @@ defmodule DeepThought.Slack.API.Message do
           end)
     }
 
+  @doc """
+  Takes a message and replaces all `<u>@U123</u>` tags with the corresponding username,
+  fetching them from cache if available or refreshing them from Slack API if not.
+  """
   @spec unescape_usernames(Message.t()) :: Message.t()
   def unescape_usernames(message),
     do:
@@ -90,6 +94,9 @@ defmodule DeepThought.Slack.API.Message do
       |> fetch_remaining_usernames
       |> replace_usernames
 
+  @doc """
+  Takes a message and replaces all `<d>code</d>` tags with the corresponding code.
+  """
   @spec unescape_code(Message.t()) :: Message.t()
   def unescape_code(%{text: text} = message),
     do: %Message{
