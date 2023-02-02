@@ -199,7 +199,6 @@ defmodule DeepThought.Slack.Language do
       "hk" => "zh",
       "mo" => "zh",
       "my" => "zh",
-      "sg" => "zh",
       "tw" => "zh"
     }
 end
