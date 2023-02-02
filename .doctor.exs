@@ -9,9 +9,12 @@
     DeepThoughtWeb.ErrorHelpers,
     DeepThoughtWeb.ErrorView,
     DeepThoughtWeb.LayoutView,
+    DeepThoughtWeb.PageController,
+    DeepThoughtWeb.PageView,
     DeepThoughtWeb.Router,
     DeepThoughtWeb.Telemetry,
-    DeepThoughtWeb.UserSocket
+    DeepThoughtWeb.UserSocket,
+    ~r(Jason\..+)
   ],
   ignore_paths: [],
   min_module_doc_coverage: 100,
