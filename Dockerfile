@@ -22,7 +22,7 @@ RUN mix assets.deploy
 RUN mix do compile, release
 
 # Prepare release image
-FROM alpine:3.15.0 AS app
+FROM alpine:3.16.3 AS app
 
 ARG MIX_ENV=prod
 RUN apk add --no-cache libstdc++ openssl ncurses-libs
